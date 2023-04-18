@@ -9,6 +9,6 @@ Rohan Kumar
 
 ## Roles
 
-Leaders: Rohan Kumar [%50], Harlan Jones [50%]
+*Leaders*: Rohan Kumar [50%], Harlan Jones [50%]
 
 
