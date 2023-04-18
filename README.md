@@ -8,10 +8,10 @@ This app is under the *Other* category. The idea for this project is an app that
 Rohan Kumar
 
 ## Roles
--**Leaders**: Rohan Kumar [50%], Harlan Jones [50%]
--**Front-End**: Michael Terekhov [75%], Harlan Jones [25%]
--**Back-End**: Harlan Jones [33.3%], Rohan Kumar [33.3%], Roger Finnerty [33.3%]
--**Documenter**: Roger Finnery [50%], Joshua Caban [50%]
--**Tester**: Joshua Caban [100%]
+- **Leaders**: Rohan Kumar [50%], Harlan Jones [50%]
+- **Front-End**: Michael Terekhov [75%], Harlan Jones [25%]
+- **Back-End**: Harlan Jones [33.3%], Rohan Kumar [33.3%], Roger Finnerty [33.3%]
+- **Documenter**: Roger Finnery [50%], Joshua Caban [50%]
+- **Tester**: Joshua Caban [100%]
 
 
