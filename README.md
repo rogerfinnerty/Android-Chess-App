@@ -8,6 +8,7 @@ This app is under the *Other* category. The idea for this project is an app that
 Rohan Kumar
 Joshua Caban
 Harlan Jones
+Roger Finnerty 
 
 ## Roles
 - **Leaders**: Rohan Kumar [50%], Harlan Jones [50%]
