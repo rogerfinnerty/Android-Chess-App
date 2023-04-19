@@ -9,6 +9,7 @@ Rohan Kumar
 Michael Terekhov
 Roger Finnerty
 Harlan Jones
+Josh Caban
 
 ## Roles
 - **Leaders**: Rohan Kumar [50%], Harlan Jones [50%]
