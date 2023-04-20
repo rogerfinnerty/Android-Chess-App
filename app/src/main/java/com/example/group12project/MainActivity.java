@@ -19,6 +19,7 @@ import com.example.group12project.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -74,5 +75,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+    public void makeToast(String str) {
+        runOnUiThread(() -> Toast.makeText(this, str, Toast.LENGTH_LONG).show());
     }
 }
