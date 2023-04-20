@@ -1,3 +1,5 @@
+// Test comment
+
 package com.example.group12project;
 
 import android.os.Bundle;
