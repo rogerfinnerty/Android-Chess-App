@@ -19,3 +19,6 @@ Josh Caban
 - **Tester**: Joshua Caban [100%]
 
 
+NOTE: We have completed issue "Personalize gitlab"
+
+
