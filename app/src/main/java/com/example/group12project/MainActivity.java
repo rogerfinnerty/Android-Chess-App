@@ -8,6 +8,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.view.View;
 
 import androidx.navigation.NavController;
@@ -21,14 +22,35 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity {
+    // Create timer object for repeated event
+    Timer timer = new Timer();
+    TimerTask timerTask;
 
     private AppBarConfiguration appBarConfiguration;
+    private Handler handler;
+    private Runnable runnable;
     private ActivityMainBinding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        makeToast("onCreate");
         super.onCreate(savedInstanceState);
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                makeToast("repeated test");
+                handler.postDelayed(this, 5000); // 5 seconds
+            }
+        };
+        handler.postDelayed(runnable,5000);
+
+// And in your onDestroy method or wherever you want to stop showing the toast:
+        handler.removeCallbacks(runnable);
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -46,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
     }
 
     @Override
