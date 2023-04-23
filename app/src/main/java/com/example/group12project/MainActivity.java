@@ -19,6 +19,9 @@ import com.example.group12project.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+// this stuff is for the makeToast
+import android.os.Handler;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        makeToast();
     }
 
     @Override
@@ -76,7 +81,16 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-    public void makeToast(String str) {
-        runOnUiThread(() -> Toast.makeText(this, str, Toast.LENGTH_LONG).show());
+
+    private void makeToast() {
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, "Toast every 5s", Toast.LENGTH_SHORT).show();
+                handler.postDelayed(this, 5000);
+            }
+        });
     }
+
 }
