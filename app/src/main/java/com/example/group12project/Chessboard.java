@@ -260,14 +260,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 selection[0] = 0;
                 selection[1] = 4;
                 break;}
-            case(R.id.i00):{
-                selection[0] = 0;
-                selection[1] = 0;
-                break;}
-            case(R.id.i00):{
-                selection[0] = 0;
-                selection[1] = 0;
-                break;}
             default:
                 break;
         }
