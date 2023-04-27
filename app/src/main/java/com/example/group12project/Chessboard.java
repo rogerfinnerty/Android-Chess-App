@@ -1,9 +1,7 @@
 package com.example.group12project;
 
-import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -11,8 +9,6 @@ import android.widget.TextView;
 
 
 import com.example.group12project.ChessComponents.*;
-
-import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -236,33 +232,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onClick(View v){
         TextView t = (TextView) findViewById(v.getId());
-        if(t.getId() == R.id.i00){
-
-        }
-        switch(t.getId()){
-            case(R.id.i00):{
-                selection[0] = 0;
-                selection[1] = 0;
-                break;}
-            case(R.id.i01):{
-                selection[0] = 0;
-                selection[1] = 1;
-                break;}
-            case(R.id.i02):{
-                selection[0] = 0;
-                selection[1] = 2;
-                break;}
-            case(R.id.i03):{
-                selection[0] = 0;
-                selection[1] = 3;
-                break;}
-            case(R.id.i04):{
-                selection[0] = 0;
-                selection[1] = 4;
-                break;}
-            default:
-                break;
-        }
+        Coordinates c = Coordinates.get_pos(t.getId());
+        Log.d("1", "" + c.get_x());
+        Log.d("2", "" + c.get_y());
         // get the ID of the chosen piece
         // save current position on toggle
         // if toggled again, unsave current position
