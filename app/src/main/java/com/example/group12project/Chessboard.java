@@ -1,5 +1,6 @@
 package com.example.group12project;
 
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -25,9 +26,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         setContentView(R.layout.activity_chessboard);
 
         startBoard();
-
-        move(0,1,0,3);
-        update_board();
     }
 
     public void startBoard(){
@@ -142,6 +140,39 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
         }
 
+        chessboard_image[2][0] = (TextView) findViewById(R.id.i20);
+        chessboard_image[2][1] = (TextView) findViewById(R.id.i21);
+        chessboard_image[2][2] = (TextView) findViewById(R.id.i22);
+        chessboard_image[2][3] = (TextView) findViewById(R.id.i23);
+        chessboard_image[2][4] = (TextView) findViewById(R.id.i24);
+        chessboard_image[2][5] = (TextView) findViewById(R.id.i25);
+        chessboard_image[2][6] = (TextView) findViewById(R.id.i26);
+        chessboard_image[2][7] = (TextView) findViewById(R.id.i27);
+        chessboard_image[3][0] = (TextView) findViewById(R.id.i30);
+        chessboard_image[3][1] = (TextView) findViewById(R.id.i31);
+        chessboard_image[3][2] = (TextView) findViewById(R.id.i32);
+        chessboard_image[3][3] = (TextView) findViewById(R.id.i33);
+        chessboard_image[3][4] = (TextView) findViewById(R.id.i34);
+        chessboard_image[3][5] = (TextView) findViewById(R.id.i35);
+        chessboard_image[3][6] = (TextView) findViewById(R.id.i36);
+        chessboard_image[3][7] = (TextView) findViewById(R.id.i37);
+        chessboard_image[4][0] = (TextView) findViewById(R.id.i40);
+        chessboard_image[4][1] = (TextView) findViewById(R.id.i41);
+        chessboard_image[4][2] = (TextView) findViewById(R.id.i42);
+        chessboard_image[4][3] = (TextView) findViewById(R.id.i43);
+        chessboard_image[4][4] = (TextView) findViewById(R.id.i44);
+        chessboard_image[4][5] = (TextView) findViewById(R.id.i45);
+        chessboard_image[4][6] = (TextView) findViewById(R.id.i46);
+        chessboard_image[4][7] = (TextView) findViewById(R.id.i47);
+        chessboard_image[5][0] = (TextView) findViewById(R.id.i50);
+        chessboard_image[5][1] = (TextView) findViewById(R.id.i51);
+        chessboard_image[5][2] = (TextView) findViewById(R.id.i52);
+        chessboard_image[5][3] = (TextView) findViewById(R.id.i53);
+        chessboard_image[5][4] = (TextView) findViewById(R.id.i54);
+        chessboard_image[5][5] = (TextView) findViewById(R.id.i55);
+        chessboard_image[5][6] = (TextView) findViewById(R.id.i56);
+        chessboard_image[5][7] = (TextView) findViewById(R.id.i57);
+
         // initial updating
         update_board();
     }
@@ -151,6 +182,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             for(int j = 0; j < 8; j++){
                 Piece p = chessboard[i][j].get_piece();
                 if(p == null){
+                    chessboard_image[i][j].setBackgroundResource(0);
                     break;
                 }
                 switch(p.get_type()) {
@@ -208,33 +240,97 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 }
             }
         }
+        Log.d("Update", "complete");
     }
 
-    public boolean move(int xstart, int ystart, int xend, int yend){
-        Place pl = chessboard[xstart][ystart];
-        chessboard[xend][yend] = pl;
-        pl.set_location(xend, yend);
-        chessboard[xstart][ystart] = new Place(null, xstart, ystart);
+    public void update_piece(Piece p, Coordinates newCo){
+        if(p == null){
+            chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(0);
+            return;
+        }
+        switch(p.get_type()) {
+            case("K"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.king_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.king_black);
+                }
+                break;
+            case("Q"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.queen_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.queen_black);
+                }
+                break;
+            case("B"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.bishop_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.bishop_black);
+                }
+                break;
+            case("R"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.rook_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.rook_black);
+                }
+                break;
+            case("P"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.pawn_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.pawn_black);
+                }
+                break;
+            case("N"):
+                if(Objects.equals(p.get_player(), "W")){
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.knight_white);
+                }
+                else{
+                    chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(R.drawable.knight_black);
+                }
+                break;
+            default:
+                chessboard_image[newCo.get_x()][newCo.get_y()].setBackgroundResource(0);
+                break;
+        }
+        Log.d("Update", "complete");
+    }
 
-        return true;
+    public void player_move(Coordinates start, Coordinates end){
+        update_piece(null, start);
+        chessboard[start.get_x()][start.get_y()].set_piece(null);
+        Place p = chessboard[start.get_x()][start.get_y()];
+        update_piece(p.get_piece(), end);
+        chessboard[start.get_x()][start.get_y()].set_piece(p.get_piece());
     }
 
     boolean TOGGLE_SELECT = false;
+    boolean haveSelect = false;
+    Coordinates firstSelect;
 
     // to hold the current chosen location ?
     // hold current location + location to move to ?
     boolean chosen[][] = new boolean[8][8];
 
-    // position of selection
-    int[] selection = {-1, -1};
-
-
     @Override
     public void onClick(View v){
         TextView t = (TextView) findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
-        Log.d("1", "" + c.get_x());
-        Log.d("2", "" + c.get_y());
+        if(haveSelect == false && chessboard[c.get_x()][c.get_y()].get_piece() != null){
+            firstSelect = c;
+            Log.d("1", "" + c.get_x());
+            Log.d("2", "" + c.get_y());
+            haveSelect = true;
+        }
+
         // get the ID of the chosen piece
         // save current position on toggle
         // if toggled again, unsave current position
@@ -246,6 +342,22 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         else{
             t.setText("");
             TOGGLE_SELECT = false;
+        }
+    }
+
+    public void print_board(){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Piece p = chessboard[i][j].get_piece();
+                if(p != null){
+                    System.out.print(p.get_type() + " | ");
+                }
+                else{
+                    System.out.print("  | ");
+                }
+
+            }
+            System.out.println("--------------------------");
         }
     }
 }
