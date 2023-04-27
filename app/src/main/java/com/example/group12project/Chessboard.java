@@ -26,6 +26,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         setContentView(R.layout.activity_chessboard);
 
         startBoard();
+        player_move(new Coordinates(1, 1), new Coordinates(4, 1));
     }
 
     public void startBoard(){
@@ -305,11 +306,11 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     public void player_move(Coordinates start, Coordinates end){
-        update_piece(null, start);
-        chessboard[start.get_x()][start.get_y()].set_piece(null);
         Place p = chessboard[start.get_x()][start.get_y()];
         update_piece(p.get_piece(), end);
-        chessboard[start.get_x()][start.get_y()].set_piece(p.get_piece());
+        chessboard[end.get_x()][end.get_y()].set_piece(p.get_piece());
+        update_piece(null, start);
+        chessboard[start.get_x()][start.get_y()].set_piece(null);
     }
 
     boolean TOGGLE_SELECT = false;
