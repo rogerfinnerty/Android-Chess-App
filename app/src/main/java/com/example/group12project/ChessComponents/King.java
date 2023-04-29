@@ -2,6 +2,9 @@ package com.example.group12project.ChessComponents;
 
 import com.example.group12project.Chessboard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class King extends Piece {
 
     public King(String p){
@@ -24,6 +27,19 @@ public class King extends Piece {
         }
 
         return !Chessboard.kingInCheck(end);
+    }
+
+    public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
+        List<Coordinates> poss = new ArrayList<Coordinates>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Coordinates temp = new Coordinates(i,j);
+                if(can_move(board, start, temp)){
+                    poss.add(temp);
+                }
+            }
+        }
+        return poss;
     }
 
 }

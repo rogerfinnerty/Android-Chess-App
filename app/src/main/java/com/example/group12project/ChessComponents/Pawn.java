@@ -50,5 +50,18 @@ public class Pawn extends Piece {
     public void madeFirstMove(){
         firstMove = false;
     }
+
+    public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
+        List<Coordinates> poss = new ArrayList<Coordinates>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Coordinates temp = new Coordinates(i,j);
+                if(can_move(board, start, temp)){
+                    poss.add(temp);
+                }
+            }
+        }
+        return poss;
+    }
 }
 
