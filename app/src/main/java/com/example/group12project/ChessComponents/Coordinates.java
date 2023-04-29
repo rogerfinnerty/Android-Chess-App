@@ -16,11 +16,11 @@ public class Coordinates {
         this.y = y;
     }
 
-    public int get_x(){
+    public int X(){
         return x;
     }
 
-    public int get_y(){
+    public int Y(){
         return y;
     }
 
@@ -100,59 +100,63 @@ public class Coordinates {
     }
 
     public void display_coord(){
-        System.out.println("[ " + get_x() + " , " + get_y() + " ]");
+        System.out.println("[ " + X() + " , " + Y() + " ]");
     }
 
     public static List<Coordinates> places_between(Coordinates start, Coordinates end){
         List<Coordinates> spaces = new ArrayList<>();
-        int xdiff = end.get_x() - start.get_x();
-        int ydiff = end.get_y() - start.get_y();
+        int xdiff = end.X() - start.X();
+        int ydiff = end.Y() - start.Y();
 
         if(xdiff == 0 && ydiff > 0){        //checking for positive y movement
             for(int i = 1; i < ydiff; i++){
-                spaces.add(new Coordinates(start.get_x(), start.get_y()+i));
+                spaces.add(new Coordinates(start.X(), start.Y()+i));
             }
         }
         else if(xdiff == 0 && ydiff < 0){   //checking for negative y movement
             for(int i = 1; i < Math.abs(ydiff); i++){
-                spaces.add(new Coordinates(start.get_x(), start.get_y()-i));
+                spaces.add(new Coordinates(start.X(), start.Y()-i));
             }
         }
         else if(ydiff == 0 && xdiff > 0){     //checking for positive x movement
             for(int i = 1; i < xdiff; i++){
-                spaces.add(new Coordinates(start.get_x()+i, start.get_y()));
+                spaces.add(new Coordinates(start.X()+i, start.Y()));
             }
         }
         else if(ydiff == 0 && xdiff < 0){          //checking for negative x movement
             for(int i = 1; i < Math.abs(xdiff); i++){
-                spaces.add(new Coordinates(start.get_x()-i, start.get_y()));
+                spaces.add(new Coordinates(start.X()-i, start.Y()));
             }
         }
         else {
             boolean b = Math.abs(xdiff) == Math.abs(ydiff);
             if(ydiff > 0 && xdiff > 0 && b){   //checking for bottom right movement
                 for(int i = 1; i < Math.abs(xdiff); i++){
-                    spaces.add(new Coordinates(start.get_x()+i, start.get_y()+i));
+                    spaces.add(new Coordinates(start.X()+i, start.Y()+i));
                 }
             }
             else if(ydiff < 0 && xdiff > 0 && b){    //checking for bottom left movement
                 for(int i = 1; i < Math.abs(xdiff); i++){
-                    spaces.add(new Coordinates(start.get_x()+i, start.get_y()-i));
+                    spaces.add(new Coordinates(start.X()+i, start.Y()-i));
                 }
             }
             else if(ydiff > 0 && xdiff < 0 && b){         //checking for top right movement
                 for(int i = 1; i < Math.abs(xdiff); i++){
-                    spaces.add(new Coordinates(start.get_x()-i, start.get_y()+i));
+                    spaces.add(new Coordinates(start.X()-i, start.Y()+i));
                 }
             }
             else if(ydiff < 0 && xdiff < 0 && b){        //checking for top left movement
                 for(int i = 1; i < Math.abs(xdiff); i++){
-                    spaces.add(new Coordinates(start.get_x()-i, start.get_y()-i));
+                    spaces.add(new Coordinates(start.X()-i, start.Y()-i));
                 }
             }
         }
 
         return spaces;
+    }
+
+    public boolean isWhite(){
+        return (X() + Y()) % 2 == 0;
     }
 
 }

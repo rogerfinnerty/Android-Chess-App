@@ -14,8 +14,8 @@ public class Bishop extends Piece {
             return false;
         }
 
-        int xdiff = Math.abs(end.get_x() - start.get_x());
-        int ydiff = Math.abs(end.get_y() - start.get_y());
+        int xdiff = Math.abs(end.X() - start.X());
+        int ydiff = Math.abs(end.Y() - start.Y());
 
         // check for diagonal movement or no movement
         if(xdiff != ydiff && xdiff != 0){
@@ -27,7 +27,7 @@ public class Bishop extends Piece {
         // 2. check each to see if there is a piece, if so, cannot move to that spot
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
-            if(board[i.get_x()][i.get_y()] != null){
+            if(board[i.X()][i.Y()] != null){
                 return false;
             }
         }

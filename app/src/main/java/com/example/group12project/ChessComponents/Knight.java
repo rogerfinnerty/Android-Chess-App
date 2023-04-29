@@ -15,8 +15,8 @@ public class Knight extends Piece {
             return false;
         }
 
-        int xdiff = Math.abs(end.get_x() - start.get_x());
-        int ydiff = Math.abs(end.get_y() - start.get_y());
+        int xdiff = Math.abs(end.X() - start.X());
+        int ydiff = Math.abs(end.Y() - start.Y());
 
         return (xdiff == 2 && ydiff == 1) || (xdiff == 1 && ydiff == 2);
     }
@@ -33,5 +33,7 @@ public class Knight extends Piece {
         }
         return poss;
     }
+
+
 
 }

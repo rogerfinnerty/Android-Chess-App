@@ -16,14 +16,39 @@ public class Pawn extends Piece {
             return false;
         }
 
-        int xdiff = (end.get_x() - start.get_x());
-        int ydiff = (end.get_y() - start.get_y());
+        int xdiff = (end.X() - start.X());
+        int ydiff = (end.Y() - start.Y());
 
         // no horizontal movement
         if(ydiff != 0){
             return false;
         }
 
+        if(Objects.equals(this.get_player(), "B")){
+            if(firstMove){
+                if(xdiff < -2 || xdiff > 0){
+                    return false;
+                }
+            }
+            else{
+                if(xdiff < -1 || xdiff > 0){
+                    return false;
+                }
+            }
+        }
+        else{
+            if(firstMove){
+                if(xdiff > 2 || xdiff < 0){
+                    return false;
+                }
+            }
+            else{
+                if(xdiff > 1 || xdiff < 0){
+                    return false;
+                }
+            }
+        }
+        /*
         // checking for movement down or up
         if(Objects.equals(this.get_player(), "W")){
             xdiff *= -1; // since going down
@@ -35,15 +60,14 @@ public class Pawn extends Piece {
         else{
             if(xdiff > 2){return false;}
         }
-
+        */
         // check for obstruction
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
-            if(board[i.get_x()][i.get_y()] != null){
+            if(board[i.X()][i.Y()] != null){
                 return false;
             }
         }
-
         return true;
     }
 

@@ -14,8 +14,8 @@ public class Rook extends Piece {
             return false;
         }
         // find change in piece placement
-        int xdiff = Math.abs(end.get_x() - start.get_x());
-        int ydiff = Math.abs(end.get_y() - start.get_y());
+        int xdiff = Math.abs(end.X() - start.X());
+        int ydiff = Math.abs(end.Y() - start.Y());
 
         // check for non-rook movement or no movement at all
         if((xdiff != 0 && ydiff != 0)){
@@ -25,7 +25,7 @@ public class Rook extends Piece {
         // check for obstruction
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
-            if(board[i.get_x()][i.get_y()] != null){
+            if(board[i.X()][i.Y()] != null){
                 return false;
             }
         }
