@@ -35,7 +35,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         player_move(new Coordinates(1, 1), new Coordinates(4, 1));
         player_move(new Coordinates(1, 2), new Coordinates(4, 2));
         player_move(new Coordinates(1, 0), new Coordinates(4, 0));
-        player_move(new Coordinates(1, 3), new Coordinates(4, 3));
 
 
         Button home_btn = (Button) findViewById(R.id.home_btn);
