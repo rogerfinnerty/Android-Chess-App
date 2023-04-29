@@ -6,11 +6,11 @@ public class Bishop extends Piece {
 
     public Bishop(String p){
         super(p);
-        this.set_type("B");
+        this.type = "B";
     }
 
-    public boolean can_move(Board b, Place start, Place end){
-        if(!super.can_move(b, start, end)){
+    public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
+        if(!super.can_move(board, start, end)){
             return false;
         }
 
@@ -23,9 +23,11 @@ public class Bishop extends Piece {
         }
 
         // check for obstruction
-        List<Place> between = b.places_between(start, end);
-        for(Place i : between){
-            if(i.get_piece() != null){
+        // 1. get list of all spaces between start and end
+        // 2. check each to see if there is a piece, if so, cannot move to that spot
+        List<Coordinates> between = Coordinates.places_between(start, end);
+        for(Coordinates i : between){
+            if(board[i.get_x()][i.get_y()] != null){
                 return false;
             }
         }

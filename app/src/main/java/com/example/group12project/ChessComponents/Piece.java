@@ -4,16 +4,11 @@ import java.util.*;
 
 public abstract class Piece {
 
-    private String player;
-    private String type;
-    private boolean dead = false;
+    private final String player;
+    protected String type;
 
     public Piece(String pl){
         player = pl;
-    }
-
-    public boolean is_dead(){
-        return dead;
     }
 
     public String get_player(){
@@ -24,24 +19,28 @@ public abstract class Piece {
         return type;
     }
 
-    public boolean set_type(String t){
-        if(t != "K" && t != "Q" && t != "B" && t != "R" && t != "P" && t != "N"){
-            return false;
-        }
-        else{
-            type = t;
-            return true;
-        }
-    }
-
-    public boolean can_move(Board b, Place start, Place end){
+    public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
+        Piece s = board[start.get_x()][start.get_y()];      // get start piece
+        Piece e = board[end.get_x()][end.get_y()];          // if end isn't null, get piece
+        // check first to make sure start and end coordinates are not equal
         if((start.get_x() == end.get_x()) && (start.get_y() == end.get_y())){
             return false;
         }
-        if(end.get_piece() != null && start.get_piece().get_player() == end.get_piece().get_player()){
-            return false;
+        // check if starting Piece is null, and check if starting player is same as ending player (cannot take own piece)
+        else return s == null || !Objects.equals(s.get_player(), e.get_player());
+    }
+
+    public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
+        List<Coordinates> poss = new ArrayList<Coordinates>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Coordinates temp = new Coordinates(i,j);
+                if(can_move(board, start, temp)){
+                    poss.add(temp);
+                }
+            }
         }
-        return true;
-    };
+        return poss;
+    }
 
 }

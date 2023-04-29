@@ -8,11 +8,11 @@ public class Pawn extends Piece {
 
     public Pawn(String p){
         super(p);
-        this.set_type("P");
+        this.type = "P";
     }
 
-    public boolean can_move(Board b, Place start, Place end){
-        if(!super.can_move(b, start, end)){
+    public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
+        if(!super.can_move(board, start, end)){
             return false;
         }
 
@@ -25,31 +25,30 @@ public class Pawn extends Piece {
         }
 
         // checking for movement down or up
-        if(this.get_player() == "W"){
+        if(Objects.equals(this.get_player(), "W")){
             xdiff *= -1; // since going down
         }
 
         if(!firstMove){
-            if(xdiff > 1){
-                return false;
-            }
+            if(xdiff > 1){return false;}
         }
-
-        if(firstMove){
-            if(xdiff > 2){
-                return false;
-            }
+        else{
+            if(xdiff > 2){return false;}
         }
 
         // check for obstruction
-        List<Place> between = b.places_between(start, end);
-        for(Place i : between){
-            if(i.get_piece() != null){
+        List<Coordinates> between = Coordinates.places_between(start, end);
+        for(Coordinates i : between){
+            if(board[i.get_x()][i.get_y()] != null){
                 return false;
             }
         }
 
         return true;
+    }
+
+    public void madeFirstMove(){
+        firstMove = false;
     }
 }
 

@@ -11,16 +11,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.group12project.ChessComponents.*;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Chessboard extends AppCompatActivity implements View.OnClickListener {
-    final int ROWS = 8;
-    final int COLUMNS = 8;
+    static final int ROWS = 8;
+    static final int COLUMNS = 8;
 
+    static Piece[][] chessboard = new Piece[ROWS][COLUMNS];
+    static View[][] chessboard_image = new View[ROWS][COLUMNS];
 
-
-    Piece chessboard[][] = new Piece[ROWS][COLUMNS];
-    View chessboard_image[][] = new View[ROWS][COLUMNS];
+    boolean WhiteMove = true;   //starting boolean for move
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,40 +50,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     public void startBoard() {
-        Queen wQueen = new Queen("W");
-        King wKing = new King("W");
-        Rook wRook1 = new Rook("W");
-        Rook wRook2 = new Rook("W");
-        Bishop wBish1 = new Bishop("W");
-        Bishop wBish2 = new Bishop("W");
-        Knight wKni1 = new Knight("W");
-        Knight wKni2 = new Knight("W");
-        Pawn wPawn1 = new Pawn("W");
-        Pawn wPawn2 = new Pawn("W");
-        Pawn wPawn3 = new Pawn("W");
-        Pawn wPawn4 = new Pawn("W");
-        Pawn wPawn5 = new Pawn("W");
-        Pawn wPawn6 = new Pawn("W");
-        Pawn wPawn7 = new Pawn("W");
-        Pawn wPawn8 = new Pawn("W");
-
-        Queen bQueen = new Queen("B");
-        King bKing = new King("B");
-        Rook bRook1 = new Rook("B");
-        Rook bRook2 = new Rook("B");
-        Bishop bBish1 = new Bishop("B");
-        Bishop bBish2 = new Bishop("B");
-        Knight bKni1 = new Knight("B");
-        Knight bKni2 = new Knight("B");
-        Pawn bPawn1 = new Pawn("B");
-        Pawn bPawn2 = new Pawn("B");
-        Pawn bPawn3 = new Pawn("B");
-        Pawn bPawn4 = new Pawn("B");
-        Pawn bPawn5 = new Pawn("B");
-        Pawn bPawn6 = new Pawn("B");
-        Pawn bPawn7 = new Pawn("B");
-        Pawn bPawn8 = new Pawn("B");
-
         // WHITE PIECES
         chessboard[0][0] = new Rook("W");
         chessboard_image[0][0] = (TextView) findViewById(R.id.i00);
@@ -326,13 +293,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     // to hold the current chosen location ?
     // hold current location + location to move to ?
-    boolean chosen[][] = new boolean[8][8];
+    boolean[][] chosen = new boolean[8][8];
 
     @Override
     public void onClick(View v) {
         TextView t = (TextView) findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
-        if (haveSelect == false && chessboard[c.get_x()][c.get_y()] != null) {
+        if (!haveSelect && chessboard[c.get_x()][c.get_y()] != null) {
             firstSelect = c;
             Log.d("1", "" + c.get_x());
             Log.d("2", "" + c.get_y());
@@ -352,6 +319,22 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    public static boolean kingInCheck(Coordinates king_square){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(chessboard[i][j] != null){
+                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i,j));
+                    for(Coordinates c : possibleMoves){
+                        if(c == king_square){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 
     public void print_board() {
         for (int i = 0; i < 8; i++) {

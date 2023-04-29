@@ -3,6 +3,9 @@ package com.example.group12project.ChessComponents;
 import androidx.annotation.IdRes;
 import com.example.group12project.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Coordinates {
 
     private final int x;
@@ -95,4 +98,61 @@ public class Coordinates {
 
         return pos;
     }
+
+    public void display_coord(){
+        System.out.println("[ " + get_x() + " , " + get_y() + " ]");
+    }
+
+    public static List<Coordinates> places_between(Coordinates start, Coordinates end){
+        List<Coordinates> spaces = new ArrayList<>();
+        int xdiff = end.get_x() - start.get_x();
+        int ydiff = end.get_y() - start.get_y();
+
+        if(xdiff == 0 && ydiff > 0){        //checking for positive y movement
+            for(int i = 1; i < ydiff; i++){
+                spaces.add(new Coordinates(start.get_x(), start.get_y()+i));
+            }
+        }
+        else if(xdiff == 0 && ydiff < 0){   //checking for negative y movement
+            for(int i = 1; i < Math.abs(ydiff); i++){
+                spaces.add(new Coordinates(start.get_x(), start.get_y()-i));
+            }
+        }
+        else if(ydiff == 0 && xdiff > 0){     //checking for positive x movement
+            for(int i = 1; i < xdiff; i++){
+                spaces.add(new Coordinates(start.get_x()+i, start.get_y()));
+            }
+        }
+        else if(ydiff == 0 && xdiff < 0){          //checking for negative x movement
+            for(int i = 1; i < Math.abs(xdiff); i++){
+                spaces.add(new Coordinates(start.get_x()-i, start.get_y()));
+            }
+        }
+        else {
+            boolean b = Math.abs(xdiff) == Math.abs(ydiff);
+            if(ydiff > 0 && xdiff > 0 && b){   //checking for bottom right movement
+                for(int i = 1; i < Math.abs(xdiff); i++){
+                    spaces.add(new Coordinates(start.get_x()+i, start.get_y()+i));
+                }
+            }
+            else if(ydiff < 0 && xdiff > 0 && b){    //checking for bottom left movement
+                for(int i = 1; i < Math.abs(xdiff); i++){
+                    spaces.add(new Coordinates(start.get_x()+i, start.get_y()-i));
+                }
+            }
+            else if(ydiff > 0 && xdiff < 0 && b){         //checking for top right movement
+                for(int i = 1; i < Math.abs(xdiff); i++){
+                    spaces.add(new Coordinates(start.get_x()-i, start.get_y()+i));
+                }
+            }
+            else if(ydiff < 0 && xdiff < 0 && b){        //checking for top left movement
+                for(int i = 1; i < Math.abs(xdiff); i++){
+                    spaces.add(new Coordinates(start.get_x()-i, start.get_y()-i));
+                }
+            }
+        }
+
+        return spaces;
+    }
+
 }
