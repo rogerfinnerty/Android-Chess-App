@@ -2,35 +2,34 @@ package com.example.group12project.ChessComponents;
 
 import java.util.*;
 
-public class Bishop extends Piece {
+public class Rook extends Piece {
 
-    public Bishop(String p){
+    public Rook(String p){
         super(p);
-        this.type = "B";
+        this.type = "R";
     }
 
     public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
         if(!super.can_move(board, start, end)){
             return false;
         }
-
+        // find change in piece placement
         int xdiff = Math.abs(end.X() - start.X());
         int ydiff = Math.abs(end.Y() - start.Y());
 
-        // check for diagonal movement or no movement
-        if(xdiff != ydiff && xdiff != 0){
+        // check for non-rook movement or no movement at all
+        if((xdiff != 0 && ydiff != 0)){
             return false;
         }
 
         // check for obstruction
-        // 1. get list of all spaces between start and end
-        // 2. check each to see if there is a piece, if so, cannot move to that spot
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
             if(board[i.X()][i.Y()] != null){
                 return false;
             }
         }
+
         return true;
     }
 
@@ -46,5 +45,4 @@ public class Bishop extends Piece {
         }
         return poss;
     }
-
 }

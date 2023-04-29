@@ -2,11 +2,11 @@ package com.example.group12project.ChessComponents;
 
 import java.util.*;
 
-public class Bishop extends Piece {
+public class Queen extends Piece{
 
-    public Bishop(String p){
+    public Queen(String p){
         super(p);
-        this.type = "B";
+        this.type = "Q";
     }
 
     public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
@@ -14,23 +14,24 @@ public class Bishop extends Piece {
             return false;
         }
 
+        // NEED TO ADD CHECKS FOR DIAGONAL OR HORIZONTAL/VERTICAL
         int xdiff = Math.abs(end.X() - start.X());
         int ydiff = Math.abs(end.Y() - start.Y());
 
-        // check for diagonal movement or no movement
-        if(xdiff != ydiff && xdiff != 0){
-            return false;
+        if(xdiff != ydiff){
+            if(xdiff != 0 && ydiff != 0){
+                return false;
+            }
         }
 
         // check for obstruction
-        // 1. get list of all spaces between start and end
-        // 2. check each to see if there is a piece, if so, cannot move to that spot
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
             if(board[i.X()][i.Y()] != null){
                 return false;
             }
         }
+
         return true;
     }
 
