@@ -313,19 +313,20 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         Coordinates c = Coordinates.get_pos(t.getId());
         if (!haveSelect && chessboard[c.X()][c.Y()] != null) {
             startSelect = c;
-            Log.d("1", "" + c.X());
-            Log.d("2", "" + c.Y());
-            haveSelect = true;
-        }
-
-        if (!TOGGLE_SELECT) {
             highlight_tile(c);
             highlight_all_possible(c);
-            TOGGLE_SELECT = true;
-        } else {
-            unhighlight_tile(c);
-            TOGGLE_SELECT = false;
+            haveSelect = true;
         }
+        else{
+            destSelect = c;
+            if(chessboard[startSelect.X()][startSelect.Y()].can_move(chessboard, startSelect, destSelect)){
+                player_move(startSelect, destSelect);
+                startSelect = null;
+                destSelect = null;
+                haveSelect = false;
+            }
+        }
+
     }
 
 
