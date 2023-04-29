@@ -1,5 +1,7 @@
 package com.example.group12project.ChessComponents;
 
+import com.example.group12project.Chessboard;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +26,7 @@ public class King extends Piece {
                 (xdiff==1 && ydiff==1))){
             return false;
         }
-
+        Chessboard.print_board();
         return !kingInCheck(board, end);
     }
 

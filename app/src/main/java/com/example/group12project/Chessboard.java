@@ -23,6 +23,11 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     static View[][] chessboard_image = new View[ROWS][COLUMNS];
     static View[][] background_tiles = new View[ROWS][COLUMNS];
 
+    boolean gameover = false;
+    Coordinates whiteKingCoord;
+    Coordinates blackKingCoord;
+    String WhiteName;
+    String BlackName;
     boolean WhiteMove = true;   //starting boolean for move
 
     @Override
@@ -32,9 +37,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
-        player_move(new Coordinates(1, 1), new Coordinates(4, 1));
-        player_move(new Coordinates(1, 2), new Coordinates(4, 2));
-        player_move(new Coordinates(1, 0), new Coordinates(4, 0));
+
+        // need to set WhiteName and BlackName before game starts
+
 
 
         Button home_btn = (Button) findViewById(R.id.home_btn);
@@ -55,6 +60,10 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     public void start_board() {
+        // start King Coordinates
+        whiteKingCoord = new Coordinates(0,4);
+        blackKingCoord = new Coordinates(7,4);
+
         // WHITE PIECES
         chessboard[0][0] = new Rook("W");
         chessboard_image[0][0] = (TextView) findViewById(R.id.i00);
@@ -285,24 +294,56 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     public void player_move(Coordinates start, Coordinates end) {
+        Log.d("Clicked:", "Moving");
         Piece p = chessboard[start.X()][start.Y()];
+        if(p instanceof King){
+            if(Objects.equals(p.get_player(), "W")){
+                whiteKingCoord = end;
+            }
+            if(Objects.equals(p.get_player(), "B")){
+                blackKingCoord = end;
+            }
+        }
         update_piece(p, end);
         chessboard[end.X()][end.Y()] = p;
         update_piece(null, start);
         chessboard[start.X()][start.Y()] = null;
+        if(Objects.equals(p.get_player(), "W")){
+            // assumes it is white's move, and black king is in checkmate
+            if(win(blackKingCoord)){
+                background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.RED);
+                gameover = true;
+                return;
+            }
+            if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
+                background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+            }
+        }
+        else{
+            // assumes it is black's move, and white king is in checkmate
+            if(win(whiteKingCoord)){
+                background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
+                gameover = true;
+                return;
+            }
+            if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
+                background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+            }
+        }
+
+        // update move
+        WhiteMove = !WhiteMove;
     }
 
-    boolean TOGGLE_SELECT = false;
     boolean haveSelect = false;
     Coordinates startSelect; // selection of piece to move
     Coordinates destSelect;  // selection of destination for piece to move
 
-    // to hold the current chosen location ?
-    // hold current location + location to move to ?
-    boolean[][] chosen = new boolean[8][8];
-
     @Override
     public void onClick(View v) {
+        if(gameover){
+            return;
+        }
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 unhighlight_tile(new Coordinates(i,j));
@@ -310,7 +351,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         TextView t = (TextView) findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
+        Log.d("Clicked:", c.X() + " , " + c.Y());
+        Log.d("WhiteMove:", WhiteMove + " ");
         if (!haveSelect && chessboard[c.X()][c.Y()] != null) {
+            if((Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) != WhiteMove){
+                return;
+            }
             startSelect = c;
             highlight_tile(c);
             highlight_all_possible(c);
@@ -325,7 +371,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 haveSelect = false;
             }
         }
-
     }
 
 
@@ -426,7 +471,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void print_board() {
+    public static void print_board() {
         // helper method to print board, used to see backend logic
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -441,4 +486,29 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             System.out.println("--------------------------");
         }
     }
+
+
+    // need to add win condition in this function
+    public boolean win(Coordinates king){
+        if(!(chessboard[king.X()][king.Y()] instanceof King)){
+            // if another piece is taking spot of king, return true
+            return true;
+        }
+        King kingPiece = (King) chessboard[king.X()][king.Y()];
+        if(kingPiece != null
+            && kingPiece.kingInCheck(chessboard, king)){
+            return kingPiece.allPossibleMoves(chessboard, king).isEmpty();
+        }
+        return false;
+    }
+
+    public String whoWon(){
+        if(WhiteMove){
+            return WhiteName;
+        }
+        else{
+            return BlackName;
+        }
+    }
+
 }
