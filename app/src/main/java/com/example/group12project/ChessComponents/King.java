@@ -17,6 +17,24 @@ public class King extends Piece {
         this.type = "K";
     }
 
+    public boolean can_move(Piece[][] board, Coordinates start, Coordinates end, Coordinates kingPos) {
+        if (!super.can_move(board, start, end, kingPos)) {
+            return false;
+        }
+
+        int xdiff = Math.abs(end.X() - start.X());
+        int ydiff = Math.abs(end.Y() - start.Y());
+
+        // cannot move more than one square unless castling
+        if (xdiff > 1 || ydiff > 1) {
+            // add castling logic
+            return false;
+        }
+
+
+        return !this.kingInCheck(board, end);
+    }
+
     public boolean can_move(Piece[][] board, Coordinates start, Coordinates end) {
         if (!super.can_move(board, start, end)) {
             return false;
@@ -33,6 +51,19 @@ public class King extends Piece {
 
 
         return !this.kingInCheck(board, end);
+    }
+
+    public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start, Coordinates kingPos) {
+        List<Coordinates> poss = new ArrayList<Coordinates>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Coordinates temp = new Coordinates(i,j);
+                if(can_move(board, start, temp, kingPos)){
+                    poss.add(temp);
+                }
+            }
+        }
+        return poss;
     }
 
     public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
@@ -56,7 +87,7 @@ public class King extends Piece {
                 if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
                     //get list of possible moves of non-same color piece at i,j
                     //chessboard[i][j].print_piece();
-                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j));
+                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j), king_square);
                     //check moves for overlap with king square, if so, return true;
                     for (Coordinates c : possibleMoves) {
                         if (c.equals(king_square)) {
@@ -86,8 +117,6 @@ public class King extends Piece {
                 }
             }
         }
-
-        Log.d("Done:", "Done");
 
         return null;
     }

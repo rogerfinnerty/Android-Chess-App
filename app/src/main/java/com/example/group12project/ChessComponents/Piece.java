@@ -21,6 +21,59 @@ public abstract class Piece {
         return type;
     }
 
+    public boolean can_move(Piece[][] board, Coordinates start, Coordinates end, Coordinates kingPos){
+        Piece s = board[start.X()][start.Y()];      // get start piece
+        Piece e = board[end.X()][end.Y()];          // if end isn't null, get piece
+        // check first to make sure start and end coordinates are not equal
+        if((start.X() == end.X()) && (start.Y() == end.Y())){
+            return false;
+        }
+
+        if(e == null){
+            if(s!=null){
+                Coordinates pinChecker = isPinned(board, kingPos, start);
+                if(pinChecker != null) {
+                    //if pinned, can only move along axis of checker
+                    if (end.equals(pinChecker)) {
+                        return true;
+                    }
+                    List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
+                    for (Coordinates b : bet) {
+                        b.display_coord();
+                        if (!b.equals(start) && b.equals(end)) {
+                            return true;    // if end pos is inline, then we can move
+                        }
+                    }
+                    return false; // else we are pinned and cannot move to end
+                }
+            }
+        }
+        else if(s == null || Objects.equals(s.get_player(), e.get_player())){
+            // check if starting Piece is null, and check if starting player is same as ending player (cannot take own piece)
+            return false;
+        }
+        else{
+            //checking if pinned
+            Coordinates pinChecker = isPinned(board, kingPos, start);
+            if(pinChecker != null){
+                //if pinned, can only move along axis of checker
+                if(end.equals(pinChecker)){
+                    return true;
+                }
+                List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
+                for(Coordinates b : bet){
+                    if(!b.equals(start) && b.equals(end)){
+                        return true;    // if end pos is inline, then we can move
+                    }
+                }
+                return false; // else we are pinned and cannot move to end
+            }
+        }
+        return true;
+    }
+
+
+    // without checking for pinning
     public boolean can_move(Piece[][] board, Coordinates start, Coordinates end){
         Piece s = board[start.X()][start.Y()];      // get start piece
         Piece e = board[end.X()][end.Y()];          // if end isn't null, get piece
@@ -36,7 +89,18 @@ public abstract class Piece {
         else return s != null && !Objects.equals(s.get_player(), e.get_player());
     }
 
+    public abstract List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start, Coordinates kingPos);
     public abstract List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start);
+
+    public Coordinates isPinned(Piece[][] board, Coordinates kingPos, Coordinates currPos){
+        if(board[currPos.X()][currPos.Y()] instanceof King || kingPos.equals(currPos)){
+            return null;
+        }
+        board[currPos.X()][currPos.Y()] = null;
+        Coordinates checker = ((King)board[kingPos.X()][kingPos.Y()]).checkByWho(board, kingPos);
+        board[currPos.X()][currPos.Y()] = this;
+        return checker;
+    }
 
     public void print_piece(){
         Log.d("Piece:", get_type() + get_player());

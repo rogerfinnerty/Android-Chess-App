@@ -2,12 +2,15 @@ package com.example.group12project;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.*;
 import android.widget.Button;
 import android.widget.TextView;
 
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.group12project.ChessComponents.*;
@@ -291,6 +294,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 break;
         }
         Log.d("Update", "complete");
+        SystemClock.sleep(100);
     }
 
     public void player_move(Coordinates start, Coordinates end) {
@@ -307,9 +311,42 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         if (p instanceof Rook)
             ((Rook) p).hasMoved = true;
-        update_piece(p, end);
+        if (p instanceof Pawn){
+            if(Objects.equals(p.get_player(), "W") && end.X()==7){
+                p = new Queen("W");
+            }
+            if(Objects.equals(p.get_player(), "B") && end.X()==0){
+                p = new Queen("B");
+            }
+        }
+
+        // run hopping animation between start and end
+        List<Coordinates> intermediates = Coordinates.places_between(start, end);
+        Handler handler = new Handler();
+        int COUNT = intermediates.size();
+        final int[] curr = {0};
+        Piece finalP = p;
+        final Coordinates[] lag = {start};
+        final Runnable r = new Runnable() {
+            public void run() {
+                if(curr[0] == COUNT){
+                    update_piece(null, lag[0]);
+                    update_piece(finalP, end);
+
+                }
+                else {
+                    update_piece(null, lag[0]);
+                    update_piece(finalP, intermediates.get(curr[0]));
+                    lag[0] = intermediates.get(curr[0]);
+                    curr[0]++;
+                    handler.postDelayed(this, 400);
+                }
+            }
+        };
+        handler.postDelayed(r, 400);
+
         chessboard[end.X()][end.Y()] = p;
-        update_piece(null, start);
+        //update_piece(null, start); // empty spot
         chessboard[start.X()][start.Y()] = null;
 
         // update move
@@ -327,7 +364,10 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                unhighlight_tile(new Coordinates(i,j));
+                Coordinates curr = new Coordinates(i,j);
+                if(haveSelect && !(curr.equals(whiteKingCoord) || curr.equals(blackKingCoord))){
+                    unhighlight_tile(curr);
+                }
             }
         }
         TextView t = (TextView) findViewById(v.getId());
@@ -346,8 +386,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             highlight_all_possible(c);
             haveSelect = true;
         }
+        else if(!haveSelect && chessboard[c.X()][c.Y()] == null){
+            return;
+        }
         else if(haveSelect && c == startSelect){        // click on the piece again
             startSelect = null;
+            unhighlight_tile(c);
+            unhighlight_all_possible(c);
             haveSelect = false;
         }
         else if(haveSelect && chessboard[c.X()][c.Y()] != null && (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W"))==WhiteMove){
@@ -357,9 +402,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             highlight_all_possible(startSelect);
         }
         else{
-            destSelect = c;                             // click on another piece
-            if(chessboard[startSelect.X()][startSelect.Y()].can_move(chessboard, startSelect, destSelect)){
+            destSelect = c;  // click on another piece
+            Coordinates thisKing = (WhiteMove) ? whiteKingCoord : blackKingCoord;
+            if(chessboard[startSelect.X()][startSelect.Y()].can_move(chessboard, startSelect, destSelect, thisKing)){
                 player_move(startSelect, destSelect);
+                if(chessboard[destSelect.X()][destSelect.Y()] instanceof King){
+                    unhighlight_tile(startSelect);
+                }
                 if(Objects.equals(chessboard[destSelect.X()][destSelect.Y()].get_player(), "W")){
                     // assumes it is white's move, and black king is in checkmate
                     if(win(blackKingCoord)){
@@ -368,8 +417,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                         return;
                     }
                     System.out.println("Checking");
+                    if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
+                        background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(whiteKingCoord);
+                    }
                     if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
                         background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(blackKingCoord);
                     }
                 }
                 else{
@@ -379,8 +437,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                         gameover = true;
                         return;
                     }
+                    if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
+                        background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(blackKingCoord);
+                    }
                     if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(whiteKingCoord);
                     }
                 }
                 startSelect = null;
@@ -483,11 +550,25 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    public void unhighlight_all_possible(Coordinates c){
+        Piece p = chessboard[c.X()][c.Y()];
+        Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
+        List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c, thisKing);
+        for(Coordinates t : all_pos){
+            if(t != whiteKingCoord && t != blackKingCoord){
+                unhighlight_tile(t);
+            }
+        }
+    }
+
     public void highlight_all_possible(Coordinates c){
         Piece p = chessboard[c.X()][c.Y()];
-        List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c);
+        Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
+        List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c, thisKing);
         for(Coordinates t : all_pos){
-            highlight_tile_possible(t);
+            if(t != whiteKingCoord && t != blackKingCoord){
+                highlight_tile_possible(t);
+            }
         }
     }
 
@@ -516,13 +597,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         King kingPiece = (King) chessboard[king.X()][king.Y()];
         Coordinates checker = kingPiece.checkByWho(chessboard, king);
-        if(kingPiece.checkByWho(chessboard, king) != null){
+        if(checker != null){
             List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
             for(int i = 0; i < 8; i++){
                 for(int j = 0; j < 8; j++){
                     Piece p = chessboard[i][j];
                     if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
-                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j));
+                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j), king);
                         for(Coordinates c : possibleObstructions){
                             for(Coordinates x : between){
                                 if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
@@ -533,12 +614,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                     }
                 }
             }
+            // can king take checker ?
+            return !kingPiece.can_move(chessboard, king, checker, king);
         }
         else{
             return false;
         }
-
-        return true;
     }
 
     public String whoWon(){
