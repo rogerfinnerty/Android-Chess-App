@@ -9,8 +9,6 @@ import android.view.*;
 import android.widget.Button;
 import android.widget.TextView;
 
-
-import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.group12project.ChessComponents.*;
@@ -329,13 +327,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         final Coordinates[] lag = {start};
         final Runnable r = new Runnable() {
             public void run() {
+                update_piece(null, lag[0]);
                 if(curr[0] == COUNT){
-                    update_piece(null, lag[0]);
                     update_piece(finalP, end);
 
                 }
                 else {
-                    update_piece(null, lag[0]);
                     update_piece(finalP, intermediates.get(curr[0]));
                     lag[0] = intermediates.get(curr[0]);
                     curr[0]++;
