@@ -1,10 +1,9 @@
 package com.example.group12project.ChessComponents;
 
 import java.util.*;
+import java.lang.Math;
 
 public class Pawn extends Piece {
-
-    private boolean firstMove = true;
 
     public Pawn(String p){
         super(p);
@@ -19,13 +18,19 @@ public class Pawn extends Piece {
         int xdiff = (end.X() - start.X());
         int ydiff = (end.Y() - start.Y());
 
-        // no horizontal movement
+        // no horizontal movement, unless capturing
         if(ydiff != 0){
-            return false;
+            if (Math.abs(ydiff) > 1 || Math.abs(xdiff) != 1)
+                return false;
+            if (board[end.X()][end.Y()] == null)
+                return false;
+            if (Objects.equals(this.get_player(), board[end.X()][end.Y()].get_player()))
+                return false;
+            // en passant
         }
 
         if(Objects.equals(this.get_player(), "B")){
-            if(firstMove){
+            if(start.X() == 6){
                 if(xdiff < -2 || xdiff > 0){
                     return false;
                 }
@@ -37,7 +42,7 @@ public class Pawn extends Piece {
             }
         }
         else{
-            if(firstMove){
+            if(start.X() == 1){
                 if(xdiff > 2 || xdiff < 0){
                     return false;
                 }
@@ -48,19 +53,11 @@ public class Pawn extends Piece {
                 }
             }
         }
-        /*
-        // checking for movement down or up
-        if(Objects.equals(this.get_player(), "W")){
-            xdiff *= -1; // since going down
-        }
 
-        if(!firstMove){
-            if(xdiff > 1){return false;}
-        }
-        else{
-            if(xdiff > 2){return false;}
-        }
-        */
+        // cannot capture vertically
+        if (board[end.X()][end.Y()] != null && ydiff == 0)
+            return false;
+
         // check for obstruction
         List<Coordinates> between = Coordinates.places_between(start, end);
         for(Coordinates i : between){
@@ -69,10 +66,6 @@ public class Pawn extends Piece {
             }
         }
         return true;
-    }
-
-    public void madeFirstMove(){
-        firstMove = false;
     }
 
     public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
