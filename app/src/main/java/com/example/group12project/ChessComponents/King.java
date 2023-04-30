@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public class King extends Piece {
 
+    public boolean hasMoved = false;
+
     public King(String p){
         super(p);
         this.type = "K";
@@ -23,11 +25,13 @@ public class King extends Piece {
         int xdiff = Math.abs(end.X() - start.X());
         int ydiff = Math.abs(end.Y() - start.Y());
 
-        if(!((xdiff==1 && ydiff==0) ||
-                (xdiff==0 && ydiff==1) ||
-                (xdiff==1 && ydiff==1))){
+        // cannot move more than one square unless castling
+        if (xdiff > 1 || ydiff > 1) {
+            // add castling logic
             return false;
         }
+
+
         return !this.kingInCheck(board, end);
     }
 
