@@ -303,7 +303,10 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             if(Objects.equals(p.get_player(), "B")){
                 blackKingCoord = end;
             }
+            ((King) p).hasMoved = true;
         }
+        if (p instanceof Rook)
+            ((Rook) p).hasMoved = true;
         update_piece(p, end);
         chessboard[end.X()][end.Y()] = p;
         update_piece(null, start);
