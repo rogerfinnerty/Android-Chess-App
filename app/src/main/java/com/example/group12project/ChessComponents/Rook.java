@@ -4,6 +4,8 @@ import java.util.*;
 
 public class Rook extends Piece {
 
+    public boolean hasMoved = false;
+
     public Rook(String p){
         super(p);
         this.type = "R";
