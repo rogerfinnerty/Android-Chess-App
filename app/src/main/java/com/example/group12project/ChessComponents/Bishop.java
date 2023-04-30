@@ -10,15 +10,27 @@ public class Bishop extends Piece {
     }
 
     public boolean can_move(Piece[][] board, Coordinates start, Coordinates end, Coordinates kingPos){
-        if(!super.can_move(board, start, end, kingPos)){
+        Piece s = board[start.X()][start.Y()];      // get start piece
+        Piece e = board[end.X()][end.Y()];          // if end isn't null, get piece
+
+        if(s==null){    // if there is no piece
+            return false;
+        }
+
+        if(e != null && (Objects.equals(s.get_player(), e.get_player()))){
+            // if end piece is same as start piece (can't take own piece)
             return false;
         }
 
         int xdiff = Math.abs(end.X() - start.X());
         int ydiff = Math.abs(end.Y() - start.Y());
-
         // check for diagonal movement or no movement
-        if(xdiff != ydiff && xdiff != 0){
+        if((xdiff != ydiff)){
+            return false;
+        }
+
+        // check for preconditions + pinning
+        if(!super.can_move(board, start, end, kingPos)){
             return false;
         }
 
@@ -43,7 +55,7 @@ public class Bishop extends Piece {
         int ydiff = Math.abs(end.Y() - start.Y());
 
         // check for diagonal movement or no movement
-        if(xdiff != ydiff && xdiff != 0){
+        if(xdiff != ydiff){
             return false;
         }
 

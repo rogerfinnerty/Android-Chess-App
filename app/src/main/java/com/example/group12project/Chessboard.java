@@ -1,5 +1,7 @@
 package com.example.group12project;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,9 +11,13 @@ import android.view.*;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.group12project.ChessComponents.*;
+
+import org.intellij.lang.annotations.JdkConstants;
+import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +64,32 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 setContentView(R.layout.activity_settings);
             }
         });
+    }
+
+    public void buildPopup(boolean white_win){
+        AlertDialog.Builder builder = new AlertDialog.Builder(Chessboard.this);
+
+        builder.setMessage("Good Job. Return Home ?");
+        builder.setTitle("WINNER !");
+        builder.setCancelable(false);
+
+        builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+            // When the user click yes button then app will close
+            Intent switchActivityIntent = new Intent(this, MainActivity.class);
+            startActivity(switchActivityIntent);
+        });
+
+        // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
+        builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+            // If user click no then dialog box is canceled.
+            dialog.cancel();
+        });
+
+        // Create the Alert dialog
+        AlertDialog alertDialog = builder.create();
+        // Show the Alert Dialog box
+        alertDialog.show();
+        return;
     }
 
     public void start_board() {
@@ -402,6 +434,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             destSelect = c;  // click on another piece
             Coordinates thisKing = (WhiteMove) ? whiteKingCoord : blackKingCoord;
             if(chessboard[startSelect.X()][startSelect.Y()].can_move(chessboard, startSelect, destSelect, thisKing)){
+                unhighlight_all_possible(startSelect);
                 player_move(startSelect, destSelect);
                 if(chessboard[destSelect.X()][destSelect.Y()] instanceof King){
                     unhighlight_tile(startSelect);
@@ -411,6 +444,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                     if(win(blackKingCoord)){
                         background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.RED);
                         gameover = true;
+                        buildPopup(WhiteMove);
                         return;
                     }
                     System.out.println("Checking");
@@ -432,6 +466,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                     if(win(whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
                         gameover = true;
+                        buildPopup(WhiteMove);
                         return;
                     }
                     if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
@@ -527,23 +562,33 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
     public void highlight_tile(Coordinates c){
         // this method highlights the tile at coordinate c to light blue
-        View v = (TextView) background_tiles[c.X()][c.Y()];
+        TextView v = (TextView) background_tiles[c.X()][c.Y()];
         v.setBackgroundColor(Color.rgb(153, 255, 255));
     }
     public void highlight_tile_possible(Coordinates c){
         // this method highlights the tile at coordinate c to light blue
-        View v = (TextView) background_tiles[c.X()][c.Y()];
-        v.setBackgroundColor(Color.rgb(202, 252, 169));
+        TextView v = (TextView) chessboard_image[c.X()][c.Y()];
+        if(chessboard[c.X()][c.Y()] == null){
+            v.setBackgroundResource(R.drawable.dot);
+        }
     }
     public void unhighlight_tile(Coordinates c){
         // this method removes highlight on any tile by resetting back to its original color
         // which is found through a check of the coordinate passed as a parameter
-        View v = (TextView) background_tiles[c.X()][c.Y()];
+        TextView v = (TextView) background_tiles[c.X()][c.Y()];
+        v.setText("");
         if(c.isWhite()){
             v.setBackgroundColor(Color.WHITE); // white
         }
         else{
             v.setBackgroundColor(Color.rgb(181, 181,181)); // gray
+        }
+    }
+
+    public void unhighlight_tile_possible(Coordinates c){
+        TextView v = (TextView) chessboard_image[c.X()][c.Y()];
+        if(chessboard[c.X()][c.Y()] == null){
+            v.setBackgroundResource(0);
         }
     }
 
@@ -553,7 +598,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c, thisKing);
         for(Coordinates t : all_pos){
             if(t != whiteKingCoord && t != blackKingCoord){
-                unhighlight_tile(t);
+                unhighlight_tile_possible(t);
             }
         }
     }
@@ -561,7 +606,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     public void highlight_all_possible(Coordinates c){
         Piece p = chessboard[c.X()][c.Y()];
         Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
-        List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c, thisKing);
+        List<Coordinates> all_pos;
+        if(chessboard[c.X()][c.Y()] instanceof King){
+            all_pos = p.allPossibleMoves(chessboard, c);
+        }
+        else{
+            all_pos = p.allPossibleMoves(chessboard, c, thisKing);
+        }
         for(Coordinates t : all_pos){
             if(t != whiteKingCoord && t != blackKingCoord){
                 highlight_tile_possible(t);

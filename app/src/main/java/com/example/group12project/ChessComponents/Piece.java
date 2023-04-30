@@ -31,20 +31,21 @@ public abstract class Piece {
 
         if(e == null){
             if(s!=null){
-                Coordinates pinChecker = isPinned(board, kingPos, start);
-                if(pinChecker != null) {
-                    //if pinned, can only move along axis of checker
-                    if (end.equals(pinChecker)) {
-                        return true;
-                    }
-                    List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
-                    for (Coordinates b : bet) {
-                        b.display_coord();
-                        if (!b.equals(start) && b.equals(end)) {
-                            return true;    // if end pos is inline, then we can move
+                if(!(this instanceof King)){
+                    Coordinates pinChecker = isPinned(board, kingPos, start);
+                    if(pinChecker != null) {
+                        //if pinned, can only move along axis of checker
+                        if (end.equals(pinChecker)) {
+                            return true;
                         }
+                        List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
+                        for (Coordinates b : bet) {
+                            if (!b.equals(start) && b.equals(end)) {
+                                return true;    // if end pos is inline, then we can move
+                            }
+                        }
+                        return false; // else we are pinned and cannot move to end
                     }
-                    return false; // else we are pinned and cannot move to end
                 }
             }
         }
@@ -54,20 +55,23 @@ public abstract class Piece {
         }
         else{
             //checking if pinned
-            Coordinates pinChecker = isPinned(board, kingPos, start);
-            if(pinChecker != null){
-                //if pinned, can only move along axis of checker
-                if(end.equals(pinChecker)){
-                    return true;
-                }
-                List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
-                for(Coordinates b : bet){
-                    if(!b.equals(start) && b.equals(end)){
-                        return true;    // if end pos is inline, then we can move
+            if(!(this instanceof King)){
+                Coordinates pinChecker = isPinned(board, kingPos, start);
+                if(pinChecker != null){
+                    //if pinned, can only move along axis of checker
+                    if(end.equals(pinChecker)){
+                        return true;
                     }
+                    List<Coordinates> bet = Coordinates.places_between(kingPos, pinChecker);
+                    for(Coordinates b : bet){
+                        if(!b.equals(start) && b.equals(end)){
+                            return true;    // if end pos is inline, then we can move
+                        }
+                    }
+                    return false; // else we are pinned and cannot move to end
                 }
-                return false; // else we are pinned and cannot move to end
             }
+
         }
         return true;
     }
@@ -94,6 +98,9 @@ public abstract class Piece {
 
     public Coordinates isPinned(Piece[][] board, Coordinates kingPos, Coordinates currPos){
         if(board[currPos.X()][currPos.Y()] instanceof King || kingPos.equals(currPos)){
+            return null;
+        }
+        if(board[kingPos.X()][kingPos.Y()] == null || !(board[kingPos.X()][kingPos.Y()] instanceof King)){
             return null;
         }
         board[currPos.X()][currPos.Y()] = null;
