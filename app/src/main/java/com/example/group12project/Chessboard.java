@@ -515,8 +515,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             return true;
         }
         King kingPiece = (King) chessboard[king.X()][king.Y()];
+        Coordinates checker = kingPiece.checkByWho(chessboard, king);
         if(kingPiece.checkByWho(chessboard, king) != null){
-            List<Coordinates> between = Coordinates.places_between(king, kingPiece.checkByWho(chessboard, king));   // find possible obstruction spots
+            List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
             for(int i = 0; i < 8; i++){
                 for(int j = 0; j < 8; j++){
                     Piece p = chessboard[i][j];
@@ -524,7 +525,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                         List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j));
                         for(Coordinates c : possibleObstructions){
                             for(Coordinates x : between){
-                                if(c.equals(x)){
+                                if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
                                     return false;
                                 }
                             }
