@@ -1,5 +1,7 @@
 package com.example.group12project.ChessComponents;
 
+import android.util.Log;
+
 import java.util.*;
 
 public abstract class Piece {
@@ -26,6 +28,7 @@ public abstract class Piece {
         if((start.X() == end.X()) && (start.Y() == end.Y())){
             return false;
         }
+
         // check if starting Piece is null, and check if starting player is same as ending player (cannot take own piece)
         if(e == null){
             return (s != null);
@@ -34,4 +37,8 @@ public abstract class Piece {
     }
 
     public abstract List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start);
+
+    public void print_piece(){
+        Log.d("Piece:", get_type() + get_player());
+    }
 }

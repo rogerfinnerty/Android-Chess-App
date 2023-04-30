@@ -308,28 +308,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         chessboard[end.X()][end.Y()] = p;
         update_piece(null, start);
         chessboard[start.X()][start.Y()] = null;
-        if(Objects.equals(p.get_player(), "W")){
-            // assumes it is white's move, and black king is in checkmate
-            if(win(blackKingCoord)){
-                background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.RED);
-                gameover = true;
-                return;
-            }
-            if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
-                background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
-            }
-        }
-        else{
-            // assumes it is black's move, and white king is in checkmate
-            if(win(whiteKingCoord)){
-                background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
-                gameover = true;
-                return;
-            }
-            if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
-                background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
-            }
-        }
 
         // update move
         WhiteMove = !WhiteMove;
@@ -353,7 +331,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         Coordinates c = Coordinates.get_pos(t.getId());
         Log.d("Clicked:", c.X() + " , " + c.Y());
         Log.d("WhiteMove:", WhiteMove + " ");
-        if (!haveSelect && chessboard[c.X()][c.Y()] != null) {
+        if (!haveSelect && chessboard[c.X()][c.Y()] != null) {  // select a piece
             if((Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) != WhiteMove){
                 return;
             }
@@ -362,13 +340,49 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             highlight_all_possible(c);
             haveSelect = true;
         }
+        else if(haveSelect && c == startSelect){        // click on the piece again
+            startSelect = null;
+            haveSelect = false;
+        }
+        else if(haveSelect && chessboard[c.X()][c.Y()] != null && (chessboard[c.X()][c.Y()].get_player()=="W")==WhiteMove){
+            //condition where we select another piece to move
+            startSelect = c;
+            highlight_tile(startSelect);
+            highlight_all_possible(startSelect);
+        }
         else{
-            destSelect = c;
+            destSelect = c;                             // click on another piece
             if(chessboard[startSelect.X()][startSelect.Y()].can_move(chessboard, startSelect, destSelect)){
                 player_move(startSelect, destSelect);
+                if(Objects.equals(chessboard[destSelect.X()][destSelect.Y()].get_player(), "W")){
+                    // assumes it is white's move, and black king is in checkmate
+                    if(win(blackKingCoord)){
+                        background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.RED);
+                        gameover = true;
+                        return;
+                    }
+                    System.out.println("Checking");
+                    if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
+                        background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                }
+                else{
+                    // assumes it is black's move, and white king is in checkmate
+                    if(win(whiteKingCoord)){
+                        background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
+                        gameover = true;
+                        return;
+                    }
+                    if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
+                        background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                }
                 startSelect = null;
                 destSelect = null;
                 haveSelect = false;
+            }
+            else{
+                destSelect = null;
             }
         }
     }
@@ -495,11 +509,50 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             return true;
         }
         King kingPiece = (King) chessboard[king.X()][king.Y()];
-        if(kingPiece != null
-            && kingPiece.kingInCheck(chessboard, king)){
-            return kingPiece.allPossibleMoves(chessboard, king).isEmpty();
+        if(kingPiece.checkByWho(chessboard, king) != null){
+            List<Coordinates> between = Coordinates.places_between(king, kingPiece.checkByWho(chessboard, king));   // find possible obstruction spots
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    Piece p = chessboard[i][j];
+                    if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
+                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j));
+                        for(Coordinates c : possibleObstructions){
+                            for(Coordinates x : between){
+                                if(c.equals(x)){
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            return false;
+        }
+
+        return true;
+        /*
+        King kingPiece = (King) chessboard[king.X()][king.Y()];
+        if(kingPiece != null && kingPiece.kingInCheck(chessboard, king) && kingPiece.allPossibleMoves(chessboard, king).isEmpty()){
+            List<Coordinates> between = Coordinates.places_between(king, kingPiece.checkByWho(chessboard, king));   // find possible obstruction spots
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    Piece p = chessboard[i][j];
+                    if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && (p instanceof King)){
+                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j));
+                        for(Coordinates c : possibleObstructions){
+                            if(between.contains(c)){
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
         }
         return false;
+        */
     }
 
     public String whoWon(){

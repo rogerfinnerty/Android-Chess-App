@@ -155,6 +155,10 @@ public class Coordinates {
         return spaces;
     }
 
+    public boolean equals(Coordinates other){
+        return (this.X() == other.X()) && (this.Y() == other.Y());
+    }
+
     public boolean isWhite(){
         return (X() + Y()) % 2 == 0;
     }

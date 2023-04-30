@@ -1,5 +1,7 @@
 package com.example.group12project.ChessComponents;
 
+import android.util.Log;
+
 import com.example.group12project.Chessboard;
 
 import java.util.ArrayList;
@@ -26,8 +28,7 @@ public class King extends Piece {
                 (xdiff==1 && ydiff==1))){
             return false;
         }
-        Chessboard.print_board();
-        return !kingInCheck(board, end);
+        return !this.kingInCheck(board, end);
     }
 
     public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
@@ -48,13 +49,14 @@ public class King extends Piece {
         // checks all spots, all pieces to see if they can attack the King
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                if(chessboard[i][j] != null) {
-                    if (!(Objects.equals(chessboard[i][j].get_type(), this.get_type()) && chessboard[i][j] instanceof King)) {
-                        List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j));
-                        for (Coordinates c : possibleMoves) {
-                            if (c == king_square) {
-                                return true;
-                            }
+                if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
+                    //get list of possible moves of non-same color piece at i,j
+                    //chessboard[i][j].print_piece();
+                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j));
+                    //check moves for overlap with king square, if so, return true;
+                    for (Coordinates c : possibleMoves) {
+                        if (c.equals(king_square)) {
+                            return true;
                         }
                     }
                 }
@@ -62,5 +64,27 @@ public class King extends Piece {
         }
 
         return false;
+    }
+
+    public Coordinates checkByWho(Piece[][] chessboard, Coordinates king_square){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
+                    //get list of possible moves of non-same color piece at i,j
+                    //chessboard[i][j].print_piece();
+                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j));
+                    //check moves for overlap with king square, if so, return true;
+                    for (Coordinates c : possibleMoves) {
+                        if (c.equals(king_square)) {
+                            return new Coordinates(i,j);
+                        }
+                    }
+                }
+            }
+        }
+
+        Log.d("Done:", "Done");
+
+        return null;
     }
 }
