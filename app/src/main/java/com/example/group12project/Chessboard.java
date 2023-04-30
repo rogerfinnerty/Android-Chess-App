@@ -22,6 +22,7 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class Chessboard extends AppCompatActivity implements View.OnClickListener {
     static final int ROWS = 8;
@@ -37,34 +38,34 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     String WhiteName;
     String BlackName;
     boolean WhiteMove = true;   //starting boolean for move
+    boolean CPU = false;
+    boolean random = true;
+
+    ChessBot bot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chessboard);
 
+
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
 
         // need to set WhiteName and BlackName before game starts
 
-
-
-        Button home_btn = (Button) findViewById(R.id.home_btn);
-        Button settings_btn = (Button) findViewById(R.id.settings_btn);
-        home_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.activity_main);
+        // first move with bot
+        if(CPU){
+            if(random){
+                bot = new RandomChessBot();
             }
-        });
-
-        settings_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.activity_settings);
-            }
-        });
+            assert bot != null;
+            List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
+            move.get(0).display_coord();
+            //move.get(1).display_coord();
+            player_move(move.get(1), move.get(0));
+        }
+        
     }
 
     public void buildPopup(boolean white_win){
@@ -394,6 +395,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         if(gameover){
             return;
         }
+        if(CPU){
+            if(WhiteMove){ return; }
+        }
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 Coordinates curr = new Coordinates(i,j);
@@ -429,6 +433,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         else if(haveSelect && chessboard[c.X()][c.Y()] != null && (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W"))==WhiteMove){
             //condition where we select another piece to move
+            unhighlight_all_possible(startSelect);
             startSelect = c;
             highlight_tile(startSelect);
             highlight_all_possible(startSelect);
@@ -488,6 +493,39 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 startSelect = null;
                 destSelect = null;
                 haveSelect = false;
+
+                // assume we moved and no endgame yet, so let bot move if bot
+                if(CPU){
+                    List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
+                    final Handler handler = new Handler();
+                    final Runnable r = new Runnable() {
+                        public void run() {
+                            player_move(move.get(1), move.get(0));
+                        }
+                    };
+                    handler.postDelayed(r, 800);
+
+                    if(win(whiteKingCoord)){
+                        background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
+                        gameover = true;
+                        buildPopup(WhiteMove);
+                        return;
+                    }
+                    System.out.println("Checking");
+                    if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
+                        background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(whiteKingCoord);
+                    }
+                    if(((King)chessboard[blackKingCoord.X()][blackKingCoord.Y()]).kingInCheck(chessboard, blackKingCoord)){
+                        background_tiles[blackKingCoord.X()][blackKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
+                    }
+                    else{
+                        unhighlight_tile(blackKingCoord);
+                    }
+                }
+
             }
             else{
                 destSelect = null;
@@ -574,6 +612,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         if(chessboard[c.X()][c.Y()] == null){
             v.setBackgroundResource(R.drawable.dot);
         }
+        else{
+            background_tiles[c.X()][c.Y()].setBackgroundColor(Color.MAGENTA);
+        }
     }
     public void unhighlight_tile(Coordinates c){
         // this method removes highlight on any tile by resetting back to its original color
@@ -592,6 +633,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         TextView v = (TextView) chessboard_image[c.X()][c.Y()];
         if(chessboard[c.X()][c.Y()] == null){
             v.setBackgroundResource(0);
+        }
+        else{
+            unhighlight_tile(c);
         }
     }
 
