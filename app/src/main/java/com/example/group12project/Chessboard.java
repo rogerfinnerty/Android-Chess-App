@@ -3,6 +3,7 @@ package com.example.group12project;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -69,20 +70,22 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     public void buildPopup(boolean white_win){
         AlertDialog.Builder builder = new AlertDialog.Builder(Chessboard.this);
 
-        builder.setMessage("Good Job. Return Home ?");
+
+
+        builder.setMessage("Good Job. Play again?");
         builder.setTitle("WINNER !");
         builder.setCancelable(false);
 
-        builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+        builder.setPositiveButton("Home", (DialogInterface.OnClickListener) (dialog, which) -> {
             // When the user click yes button then app will close
             Intent switchActivityIntent = new Intent(this, MainActivity.class);
             startActivity(switchActivityIntent);
         });
 
         // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
-        builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+        builder.setNegativeButton("Play Again", (DialogInterface.OnClickListener) (dialog, which) -> {
             // If user click no then dialog box is canceled.
-            dialog.cancel();
+            this.recreate();
         });
 
         // Create the Alert dialog
