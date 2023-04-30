@@ -303,7 +303,10 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             if(Objects.equals(p.get_player(), "B")){
                 blackKingCoord = end;
             }
+            ((King) p).hasMoved = true;
         }
+        if (p instanceof Rook)
+            ((Rook) p).hasMoved = true;
         update_piece(p, end);
         chessboard[end.X()][end.Y()] = p;
         update_piece(null, start);
@@ -329,6 +332,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         TextView t = (TextView) findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
+        if(c == null){
+            return;
+        }
         Log.d("Clicked:", c.X() + " , " + c.Y());
         Log.d("WhiteMove:", WhiteMove + " ");
         if (!haveSelect && chessboard[c.X()][c.Y()] != null) {  // select a piece
@@ -344,7 +350,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             startSelect = null;
             haveSelect = false;
         }
-        else if(haveSelect && chessboard[c.X()][c.Y()] != null && (chessboard[c.X()][c.Y()].get_player()=="W")==WhiteMove){
+        else if(haveSelect && chessboard[c.X()][c.Y()] != null && (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W"))==WhiteMove){
             //condition where we select another piece to move
             startSelect = c;
             highlight_tile(startSelect);
@@ -532,27 +538,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
 
         return true;
-        /*
-        King kingPiece = (King) chessboard[king.X()][king.Y()];
-        if(kingPiece != null && kingPiece.kingInCheck(chessboard, king) && kingPiece.allPossibleMoves(chessboard, king).isEmpty()){
-            List<Coordinates> between = Coordinates.places_between(king, kingPiece.checkByWho(chessboard, king));   // find possible obstruction spots
-            for(int i = 0; i < 8; i++){
-                for(int j = 0; j < 8; j++){
-                    Piece p = chessboard[i][j];
-                    if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && (p instanceof King)){
-                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j));
-                        for(Coordinates c : possibleObstructions){
-                            if(between.contains(c)){
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
-        */
     }
 
     public String whoWon(){
