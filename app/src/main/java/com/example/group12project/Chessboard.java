@@ -523,7 +523,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                     List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
                     final Handler handler = new Handler();
                     final Runnable r = () -> player_move(move.get(1), move.get(0));
-                    handler.postDelayed(r, 800);
+                    handler.postDelayed(r, 2000);
 
                     if(win(whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
@@ -675,7 +675,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
         List<Coordinates> all_pos;
         if(chessboard[c.X()][c.Y()] instanceof King){
-            all_pos = p.allPossibleMoves(chessboard, c);
+            all_pos = p.allPossibleMoves(chessboard, c, thisKing);
         }
         else{
             all_pos = p.allPossibleMoves(chessboard, c, thisKing);
@@ -710,34 +710,64 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             // if another piece is taking spot of king, return true
             return true;
         }
+
         King kingPiece = (King) chessboard[king.X()][king.Y()];
         Coordinates checker = kingPiece.checkByWho(chessboard, king);
-        if(checker != null){
-            List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
-            for(int i = 0; i < 8; i++){
-                for(int j = 0; j < 8; j++){
-                    Piece p = chessboard[i][j];
-                    if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
-                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j), king);
-                        for(Coordinates c : possibleObstructions){
-                            for(Coordinates x : between){
-                                if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
-                                    return false;
-                                }
+        if(checker == null){ // check if King is in check
+            return false;
+        }
+
+        // check if king can move, and if so, will moves by stopped by checker
+        Piece[][] copyC = new Piece[8][8];
+        for(int i = 0; i< chessboard.length; i++){
+            for (int j = 0; j < chessboard[i].length; j++){
+                copyC[i][j] = chessboard[i][j];
+            }
+        }
+        copyC[king.X()][king.Y()] = null;
+        List<Coordinates> checkerMoves = chessboard[checker.X()][checker.Y()].allPossibleMoves(copyC, checker);
+        int all_diff = 0;
+        List<Coordinates> kingMoves = kingPiece.allPossibleMoves(chessboard, king);
+        if(!kingMoves.isEmpty()){
+            for(Coordinates c : kingMoves){
+                for(Coordinates d : checkerMoves){
+                    d.display_coord();
+                    if(c.equals(d)){
+                        all_diff++;
+                    }
+                }
+            }
+            if(all_diff != kingMoves.size()){
+                return false;
+            }
+        }
+
+        // check for possible obstructions to counter check
+        List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Piece p = chessboard[i][j];
+                if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
+                    List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j), king);
+                    for(Coordinates c : possibleObstructions){
+                        for(Coordinates x : between){
+                            if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
+                                return false;
                             }
                         }
                     }
                 }
             }
-            // can king take checker ?
-            if(kingPiece.can_move(chessboard, king, checker)) {
-                return !kingPiece.kingInCheck(chessboard, checker);
-            }
+        }
+
+        // can king take checker ?
+        if(kingPiece.can_move(chessboard, king, checker)) {
+            // without being in check
+            return kingPiece.kingInCheck(chessboard, checker);
         }
         else{
-            return false;
+            return true;
         }
-        return false;
     }
 
     public String whoWon(){
