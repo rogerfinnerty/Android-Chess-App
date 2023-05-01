@@ -29,6 +29,12 @@
             android:inputType="text"
             android:text="Enter challenger name" />
 
+        <Switch
+            android:id="@+id/aggr_switch"
+            android:layout_width="185dp"
+            android:layout_height="124dp"
+            android:text="Aggressive Bot" />
+
         <Button
             android:id="@+id/start_game"
             android:layout_width="match_parent"

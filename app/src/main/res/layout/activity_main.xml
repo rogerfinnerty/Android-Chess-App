@@ -40,12 +40,6 @@
             android:text="New Game vs Bot" />
 
         <Button
-            android:id="@+id/load_game"
-            android:layout_width="match_parent"
-            android:layout_height="78dp"
-            android:text="@string/load_game" />
-
-        <Button
             android:id="@+id/leaderboard"
             android:layout_width="match_parent"
             android:layout_height="78dp"

@@ -4,27 +4,31 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.*;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.group12project.ChessComponents.*;
+import com.example.group12project.ChessComponents.AggroChessBot;
+import com.example.group12project.ChessComponents.Bishop;
+import com.example.group12project.ChessComponents.ChessBot;
+import com.example.group12project.ChessComponents.Coordinates;
+import com.example.group12project.ChessComponents.King;
+import com.example.group12project.ChessComponents.Knight;
+import com.example.group12project.ChessComponents.Pawn;
+import com.example.group12project.ChessComponents.Piece;
+import com.example.group12project.ChessComponents.Queen;
+import com.example.group12project.ChessComponents.RandomChessBot;
+import com.example.group12project.ChessComponents.Rook;
 
-import org.intellij.lang.annotations.JdkConstants;
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 public class Chessboard extends AppCompatActivity implements View.OnClickListener {
     static final int ROWS = 8;
@@ -61,6 +65,16 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             if(!CPU){
                 WhiteName = extras.getString("WhiteName");
             }
+            if(CPU){
+                if(extras.getBoolean("Random")){
+                    System.out.println("Random");
+                    random = true;
+                }
+                else{
+                    System.out.println("Aggro");
+                    random = false;
+                }
+            }
             BlackName = extras.getString("BlackName");
         }
 
@@ -73,9 +87,11 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         // first move with bot
         if(CPU){
             if(random){
+                bot = new RandomChessBot();
+            }
+            else{
                 bot = new AggroChessBot();
             }
-            assert bot != null;
             List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
             move.get(0).display_coord();
             //move.get(1).display_coord();

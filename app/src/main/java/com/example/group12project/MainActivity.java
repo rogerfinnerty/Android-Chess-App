@@ -61,12 +61,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);    // Display main menu
 
         Button new_game = (Button) findViewById(R.id.new_game);
-        Button load_game = (Button) findViewById(R.id.load_game);
         Button leaderboard = (Button) findViewById(R.id.leaderboard);
         Button new_vs_bot = (Button) findViewById(R.id.Bot);
 
         new_game.setOnClickListener(view -> goToUserNames());
-        //load_game.setOnClickListener(v -> setContentView(R.layout.activity_chessboard));
         new_vs_bot.setOnClickListener(view -> newBot());
         leaderboard.setOnClickListener(view -> goToLeaderboard());
     }
