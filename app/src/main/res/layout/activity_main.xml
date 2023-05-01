@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="668dp"
         android:gravity="bottom|center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="30dp">
 
         <TextView
             android:id="@+id/textView"
@@ -21,11 +22,23 @@
             android:textAlignment="center"
             android:textSize="38sp" />
 
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:background="@android:color/holo_blue_light" />
+
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="218dp"
             app:srcCompat="@drawable/mainpic" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:background="@android:color/holo_blue_light" />
 
         <Button
             android:id="@+id/new_game"
@@ -37,7 +50,7 @@
             android:id="@+id/Bot"
             android:layout_width="match_parent"
             android:layout_height="78dp"
-            android:text="New Game vs Bot" />
+            android:text="@string/new_game_vs_bot" />
 
         <Button
             android:id="@+id/leaderboard"

@@ -1,19 +1,24 @@
 package com.example.group12project;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.group12project.ChessComponents.AggroChessBot;
 import com.example.group12project.ChessComponents.Bishop;
@@ -27,6 +32,8 @@ import com.example.group12project.ChessComponents.Queen;
 import com.example.group12project.ChessComponents.RandomChessBot;
 import com.example.group12project.ChessComponents.Rook;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +47,8 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     boolean gameover = false;
     Coordinates whiteKingCoord;
+    boolean whiteThreatMap[][];
+    boolean blackThreatMap[][];
     Coordinates blackKingCoord;
     String WhiteName;
     String BlackName;
@@ -48,6 +57,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     boolean random = true;
 
     ChessBot bot;
+    MediaPlayer mp;
+    boolean sound;
+    boolean mode;
+
+    boolean piece_theme;
+    boolean board_theme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +71,16 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
+        blackThreatMap = getThreatMap("B");
+        whiteThreatMap = getThreatMap("W");
+
+        // sound effect
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.move);
+        mp.setVolume(1F, 1F);
+        sound = true;
+        mode = true;
+        piece_theme = true;
+        board_theme = true;
 
         // need to set WhiteName and BlackName before game starts
         Bundle extras = getIntent().getExtras();
@@ -98,14 +123,44 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             player_move(move.get(1), move.get(0));
         }
 
+        ConstraintLayout back = (ConstraintLayout) findViewById(R.id.layout_chess);
+
         Button homebtn = (Button) findViewById(R.id.home_btn);
         homebtn.setOnClickListener(v -> {
             Intent home = new Intent(this, MainActivity.class);
             startActivity(home);
         });
 
-        Button settingbtn = (Button) findViewById(R.id.settings_btn);
-        settingbtn.setOnClickListener(v -> {
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch sound_btn = (Switch) findViewById(R.id.sound_btn);
+        sound_btn.setChecked(true); // intially on
+        sound_btn.setOnClickListener(v -> {
+            sound = sound_btn.isChecked();
+        });
+
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch mode_btn = (Switch) findViewById(R.id.mode_btn);
+        mode_btn.setChecked(true);
+        mode_btn.setOnClickListener(v -> {
+            mode = !mode;
+            if(mode){   // initially on light blue
+                back.setBackgroundColor(0xFF33B5E5);
+                sound_btn.setTextColor(Color.DKGRAY);
+                mode_btn.setTextColor(Color.DKGRAY);
+                nv1.setTextColor(Color.DKGRAY);
+                nv2.setTextColor(Color.DKGRAY);
+            }
+            else{       // change to navy blue
+                back.setBackgroundColor(0xFF00008B);
+                sound_btn.setTextColor(Color.WHITE);
+                mode_btn.setTextColor(Color.WHITE);
+                nv1.setTextColor(Color.WHITE);
+                nv2.setTextColor(Color.WHITE);
+            }
+        });
+
+        Switch piece_btn = (Switch) findViewById(R.id.piece_btn);
+        piece_btn.setChecked(true);
+        piece_btn.setOnClickListener(v -> {
+            piece_theme = !piece_theme;
         });
     }
 
@@ -409,6 +464,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         final Runnable r = new Runnable() {
             public void run() {
                 update_piece(null, lag[0]);
+                if(sound){
+                    mp.start();
+                }
                 if(curr[0] == COUNT){
                     update_piece(finalP, end);
 
@@ -732,36 +790,32 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             return true;
         }
 
+
         King kingPiece = (King) chessboard[king.X()][king.Y()];
+        if(kingPiece == null){
+            throw new IllegalArgumentException();
+        }
+        // find threatmap
+        boolean[][] threat = (Objects.equals(kingPiece.get_player(), "W")) ? getThreatMap("B") : getThreatMap("W");
         Coordinates checker = kingPiece.checkByWho(chessboard, king);
         if(checker == null){ // check if King is in check
-            return false;
+            return false;   // not in check
         }
 
-        // check if king can move, and if so, will moves by stopped by checker
-        Piece[][] copyC = new Piece[8][8];
-        for(int i = 0; i< chessboard.length; i++){
-            System.arraycopy(chessboard[i], 0, copyC[i], 0, chessboard[i].length);
-        }
-        copyC[king.X()][king.Y()] = null;
-        List<Coordinates> checkerMoves = chessboard[checker.X()][checker.Y()].allPossibleMoves(copyC, checker);
-        int all_diff = 0;
+        //can king move? can king move to a spot not in check?
         List<Coordinates> kingMoves = kingPiece.allPossibleMoves(chessboard, king);
+        List<Coordinates> kingMoves_pos = new ArrayList<>();
         if(!kingMoves.isEmpty()){
             for(Coordinates c : kingMoves){
-                for(Coordinates d : checkerMoves){
-                    d.display_coord();
-                    if(c.equals(d)){
-                        all_diff++;
-                    }
+                if(!threat[c.X()][c.Y()]){
+                    return true;
                 }
-            }
-            if(all_diff != kingMoves.size()){
-                return false;
             }
         }
 
+
         // check for possible obstructions to counter check
+
         List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -798,9 +852,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             pref.getInt(winner, curr);
             curr++;
             editor.putInt(winner, curr);
-        }
-        else{
-
         }
 
         // Send the winner and losers to the leaderboard
@@ -1039,5 +1090,20 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
     */
 
+
+    public boolean[][] getThreatMap(String p){
+        boolean[][] map = new boolean[8][8];
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(chessboard[i][j] != null && Objects.equals(chessboard[i][j].get_player(), p)){
+                    for(Coordinates c : chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i,j))){
+                        map[c.X()][c.Y()] = true;
+                    }
+                }
+            }
+        }
+
+        return map;
+    }
 
 }

@@ -113,3 +113,4 @@ public abstract class Piece {
         Log.d("Piece:", get_type() + get_player());
     }
 }
+

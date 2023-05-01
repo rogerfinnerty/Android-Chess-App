@@ -49,6 +49,8 @@ public class King extends Piece {
             return false;
         }
 
+        //pretend like king is not there, check if in checkmate?
+
         return !this.kingInCheck(board, end);
     }
 
@@ -84,21 +86,6 @@ public class King extends Piece {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
-                    /*
-                    List<Coordinates> possibleMoves = chessboard[i][j].allPossibleMoves(chessboard, new Coordinates(i, j), king_square);
-                    //check moves for overlap with king square, if so, return true;
-                    for (Coordinates c : possibleMoves) {
-                        System.out.print("Possible move from piece: ");
-                        chessboard[i][j].print_piece();
-                        c.display_coord();
-                        if (c.equals(king_square)) {
-                            System.out.print("FOUND: ");
-                            c.display_coord();
-                            return true;
-                        }
-                    }
-
-                     */
                     if(chessboard[i][j].can_move(chessboard, new Coordinates(i, j), king_square)){
                         return true;
                     }

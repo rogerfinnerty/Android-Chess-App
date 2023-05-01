@@ -34,4 +34,5 @@
     <string name="load_game">Load Game</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="title_activity_leaderboard">Leaderboard</string>
+    <string name="new_game_vs_bot">New Game vs Bot</string>
 </resources>
