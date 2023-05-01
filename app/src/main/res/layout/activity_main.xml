@@ -10,7 +10,7 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="260dp"
-        app:srcCompat="@drawable/queen_black" />
+        app:srcCompat="@drawable/mainpic" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,20 +22,19 @@
             android:id="@+id/new_game"
             android:layout_width="match_parent"
             android:layout_height="148dp"
-            android:text="New Game"
-            android:onClick="goToUserNames"/>
+            android:text="@string/new_game"/>
 
         <Button
             android:id="@+id/load_game"
             android:layout_width="match_parent"
             android:layout_height="116dp"
-            android:text="Load Game" />
+            android:text="@string/load_game" />
 
         <Button
             android:id="@+id/leaderboard"
             android:layout_width="match_parent"
             android:layout_height="78dp"
-            android:text="Leaderboard" />
+            android:text="@string/leaderboard" />
 
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

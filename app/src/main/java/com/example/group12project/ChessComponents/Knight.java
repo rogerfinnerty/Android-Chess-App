@@ -48,7 +48,7 @@ public class Knight extends Piece {
 
 
     public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start, Coordinates kingPos) {
-        List<Coordinates> poss = new ArrayList<Coordinates>();
+        List<Coordinates> poss = new ArrayList<>();
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 Coordinates temp = new Coordinates(i,j);
@@ -61,7 +61,7 @@ public class Knight extends Piece {
     }
 
     public List<Coordinates> allPossibleMoves(Piece[][] board, Coordinates start) {
-        List<Coordinates> poss = new ArrayList<Coordinates>();
+        List<Coordinates> poss = new ArrayList<>();
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 Coordinates temp = new Coordinates(i,j);

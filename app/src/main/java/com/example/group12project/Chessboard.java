@@ -53,6 +53,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         set_tiles();   // fill out background_tiles to use for highlighting
 
         // need to set WhiteName and BlackName before game starts
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            WhiteName = extras.getString("WhiteName");
+            BlackName = extras.getString("BlackName");
+        }
+
+        TextView nv1 = (TextView) findViewById(R.id.player1_banner);
+        TextView nv2 = (TextView) findViewById(R.id.player2_banner);
+
+        nv1.setText(BlackName);
+        nv2.setText(WhiteName);
 
         // first move with bot
         if(CPU){
@@ -70,8 +81,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     public void buildPopup(boolean white_win){
         AlertDialog.Builder builder = new AlertDialog.Builder(Chessboard.this);
-
-
 
         builder.setMessage("Good Job. Play again?");
         builder.setTitle("WINNER !");
@@ -498,11 +507,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 if(CPU){
                     List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
                     final Handler handler = new Handler();
-                    final Runnable r = new Runnable() {
-                        public void run() {
-                            player_move(move.get(1), move.get(0));
-                        }
-                    };
+                    final Runnable r = () -> player_move(move.get(1), move.get(0));
                     handler.postDelayed(r, 800);
 
                     if(win(whiteKingCoord)){

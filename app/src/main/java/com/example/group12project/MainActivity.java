@@ -43,23 +43,10 @@ public class MainActivity extends AppCompatActivity {
         Button load_game = (Button) findViewById(R.id.load_game);
         Button leaderboard = (Button) findViewById(R.id.leaderboard);
 
-        new_game.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToUserNames();
-            }
-        });
-        load_game.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.activity_chessboard);
-            }
-        });
-        leaderboard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //setContentView(R.layout.fragment_player_names);
-            }
+        new_game.setOnClickListener(view -> goToUserNames());
+        load_game.setOnClickListener(v -> setContentView(R.layout.activity_chessboard));
+        leaderboard.setOnClickListener(v -> {
+            //setContentView(R.layout.fragment_player_names);
         });
     }
     private void makeToast() {
