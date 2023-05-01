@@ -72,7 +72,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         // first move with bot
         if(CPU){
             if(random){
-                bot = new RandomChessBot();
+                bot = new AggroChessBot();
             }
             assert bot != null;
             List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
@@ -106,7 +106,14 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             Intent switchActivityIntent = new Intent(this, MainActivity.class);
             startActivity(switchActivityIntent);
         });
-
+        builder.setNeutralButton("Update Leaderboard", (DialogInterface.OnClickListener) (dialog, which) -> {
+            if(white_win){
+                update_leaderboard(WhiteName, BlackName);
+            }
+            else{
+                update_leaderboard(BlackName, WhiteName);
+            }
+        });
         // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
         builder.setNegativeButton("Play Again", (DialogInterface.OnClickListener) (dialog, which) -> {
             // If user click no then dialog box is canceled.
@@ -117,7 +124,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         AlertDialog alertDialog = builder.create();
         // Show the Alert Dialog box
         alertDialog.show();
-        return;
     }
 
     public void start_board() {
@@ -720,9 +726,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         // check if king can move, and if so, will moves by stopped by checker
         Piece[][] copyC = new Piece[8][8];
         for(int i = 0; i< chessboard.length; i++){
-            for (int j = 0; j < chessboard[i].length; j++){
-                copyC[i][j] = chessboard[i][j];
-            }
+            System.arraycopy(chessboard[i], 0, copyC[i], 0, chessboard[i].length);
         }
         copyC[king.X()][king.Y()] = null;
         List<Coordinates> checkerMoves = chessboard[checker.X()][checker.Y()].allPossibleMoves(copyC, checker);
