@@ -26,8 +26,8 @@
             android:id="@+id/player_one_name"
             android:layout_width="match_parent"
             android:layout_height="63dp"
-            android:inputType="text"
-            android:text="Enter challenger name" />
+            android:hint="Enter challenger name"
+            android:inputType="text" />
 
         <Switch
             android:id="@+id/aggr_switch"
