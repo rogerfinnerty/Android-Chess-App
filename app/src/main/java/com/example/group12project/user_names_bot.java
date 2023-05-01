@@ -19,7 +19,7 @@ public class user_names_bot extends AppCompatActivity {
         EditText t1 = (EditText) findViewById(R.id.player_one_name);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch s1 = (Switch) findViewById(R.id.aggr_switch);
         Boolean random = !(s1.isChecked());
-        intent_1.putExtra("WhiteName", String.valueOf(t1.getText()));
+        intent_1.putExtra("BlackName", String.valueOf(t1.getText()));
         intent_1.putExtra("Bot", true);
         intent_1.putExtra("Random", random);
         startActivity(intent_1);
