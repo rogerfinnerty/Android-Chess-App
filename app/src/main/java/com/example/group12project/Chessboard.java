@@ -49,7 +49,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chessboard);
 
-
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
 
@@ -77,7 +76,18 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             //move.get(1).display_coord();
             player_move(move.get(1), move.get(0));
         }
-        
+
+        Button homebtn = (Button) findViewById(R.id.home_btn);
+        homebtn.setOnClickListener(v -> {
+            Intent home = new Intent(this, MainActivity.class);
+            startActivity(home);
+        });
+
+        Button settingbtn = (Button) findViewById(R.id.settings_btn);
+        homebtn.setOnClickListener(v -> {
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+        });
     }
 
     public void buildPopup(boolean white_win){
