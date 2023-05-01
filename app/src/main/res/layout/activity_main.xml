@@ -4,30 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="260dp"
-        app:srcCompat="@drawable/mainpic" />
+    tools:context=".MainActivity"
+    android:background="@android:color/holo_blue_light">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom"
+        android:layout_height="668dp"
+        android:gravity="bottom|center"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SimpleChess"
+            android:textAlignment="center"
+            android:textSize="38sp" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="218dp"
+            app:srcCompat="@drawable/mainpic" />
 
         <Button
             android:id="@+id/new_game"
             android:layout_width="match_parent"
-            android:layout_height="148dp"
-            android:text="@string/new_game"/>
+            android:layout_height="78dp"
+            android:text="@string/new_game" />
+
+        <Button
+            android:id="@+id/Bot"
+            android:layout_width="match_parent"
+            android:layout_height="78dp"
+            android:text="New Game vs Bot" />
 
         <Button
             android:id="@+id/load_game"
             android:layout_width="match_parent"
-            android:layout_height="116dp"
+            android:layout_height="78dp"
             android:text="@string/load_game" />
 
         <Button

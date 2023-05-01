@@ -20,6 +20,7 @@ import com.example.group12project.ChessComponents.*;
 import org.intellij.lang.annotations.JdkConstants;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -48,14 +49,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chessboard);
 
-
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
 
         // need to set WhiteName and BlackName before game starts
         Bundle extras = getIntent().getExtras();
+
         if(extras != null){
-            WhiteName = extras.getString("WhiteName");
+            CPU = extras.getBoolean("Bot");
+            if(!CPU){
+                WhiteName = extras.getString("WhiteName");
+            }
             BlackName = extras.getString("BlackName");
         }
 
@@ -76,7 +80,18 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             //move.get(1).display_coord();
             player_move(move.get(1), move.get(0));
         }
-        
+
+        Button homebtn = (Button) findViewById(R.id.home_btn);
+        homebtn.setOnClickListener(v -> {
+            Intent home = new Intent(this, MainActivity.class);
+            startActivity(home);
+        });
+
+        Button settingbtn = (Button) findViewById(R.id.settings_btn);
+        settingbtn.setOnClickListener(v -> {
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+        });
     }
 
     public void buildPopup(boolean white_win){
@@ -508,7 +523,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                     List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
                     final Handler handler = new Handler();
                     final Runnable r = () -> player_move(move.get(1), move.get(0));
-                    handler.postDelayed(r, 800);
+                    handler.postDelayed(r, 2000);
 
                     if(win(whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.RED);
@@ -660,7 +675,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
         List<Coordinates> all_pos;
         if(chessboard[c.X()][c.Y()] instanceof King){
-            all_pos = p.allPossibleMoves(chessboard, c);
+            all_pos = p.allPossibleMoves(chessboard, c, thisKing);
         }
         else{
             all_pos = p.allPossibleMoves(chessboard, c, thisKing);
@@ -695,30 +710,63 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             // if another piece is taking spot of king, return true
             return true;
         }
+
         King kingPiece = (King) chessboard[king.X()][king.Y()];
         Coordinates checker = kingPiece.checkByWho(chessboard, king);
-        if(checker != null){
-            List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
-            for(int i = 0; i < 8; i++){
-                for(int j = 0; j < 8; j++){
-                    Piece p = chessboard[i][j];
-                    if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
-                        List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j), king);
-                        for(Coordinates c : possibleObstructions){
-                            for(Coordinates x : between){
-                                if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
-                                    return false;
-                                }
+        if(checker == null){ // check if King is in check
+            return false;
+        }
+
+        // check if king can move, and if so, will moves by stopped by checker
+        Piece[][] copyC = new Piece[8][8];
+        for(int i = 0; i< chessboard.length; i++){
+            for (int j = 0; j < chessboard[i].length; j++){
+                copyC[i][j] = chessboard[i][j];
+            }
+        }
+        copyC[king.X()][king.Y()] = null;
+        List<Coordinates> checkerMoves = chessboard[checker.X()][checker.Y()].allPossibleMoves(copyC, checker);
+        int all_diff = 0;
+        List<Coordinates> kingMoves = kingPiece.allPossibleMoves(chessboard, king);
+        if(!kingMoves.isEmpty()){
+            for(Coordinates c : kingMoves){
+                for(Coordinates d : checkerMoves){
+                    d.display_coord();
+                    if(c.equals(d)){
+                        all_diff++;
+                    }
+                }
+            }
+            if(all_diff != kingMoves.size()){
+                return false;
+            }
+        }
+
+        // check for possible obstructions to counter check
+        List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                Piece p = chessboard[i][j];
+                if(p != null && Objects.equals(p.get_player(), kingPiece.get_player()) && !(p instanceof King)){
+                    List<Coordinates> possibleObstructions = p.allPossibleMoves(chessboard, new Coordinates(i,j), king);
+                    for(Coordinates c : possibleObstructions){
+                        for(Coordinates x : between){
+                            if(c.equals(x) || c.equals(checker)){   // piece can obstruct or take checker
+                                return false;
                             }
                         }
                     }
                 }
             }
-            // can king take checker ?
-            return !kingPiece.can_move(chessboard, king, checker, king);
+        }
+
+        // can king take checker ?
+        if(kingPiece.can_move(chessboard, king, checker)) {
+            // without being in check
+            return kingPiece.kingInCheck(chessboard, checker);
         }
         else{
-            return false;
+            return true;
         }
     }
 
@@ -742,5 +790,222 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         }
     }
+
+    /*
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putBoolean("move", WhiteMove);
+        savedInstanceState.putString("player1", BlackName);
+        savedInstanceState.putString("player2", WhiteName);
+
+        ArrayList<String> row1 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[0][i] != null){
+                row1.add(chessboard[0][i].get_type() + chessboard[0][i].get_player());
+            }
+            else{
+                row1.add("NONE");
+            }
+        }
+        ArrayList<String> row2 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[1][i] != null){
+                row2.add(chessboard[1][i].get_type() + chessboard[1][i].get_player());
+            }
+            else{
+                row2.add("NONE");
+            }
+        }
+        ArrayList<String> row3 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[2][i] != null){
+                row3.add(chessboard[2][i].get_type() + chessboard[2][i].get_player());
+            }
+            else{
+                row3.add("NONE");
+            }
+        }
+        ArrayList<String> row4 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[3][i] != null){
+                row4.add(chessboard[3][i].get_type() + chessboard[3][i].get_player());
+            }
+            else{
+                row4.add("NONE");
+            }
+        }
+        ArrayList<String> row5 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[0][i] != null){
+                row5.add(chessboard[4][i].get_type() + chessboard[4][i].get_player());}
+            else{
+                row5.add("NONE");
+            }
+        }
+        ArrayList<String> row6 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[5][i] != null){
+                row6.add(chessboard[5][i].get_type() + chessboard[5][i].get_player());}
+            else{
+                row6.add("NONE");
+            }
+        }
+        ArrayList<String> row7 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[0][i] != null){
+                row7.add(chessboard[6][i].get_type() + chessboard[6][i].get_player());}
+            else{
+                row7.add("NONE");
+            }
+        }
+        ArrayList<String> row8 = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            if(chessboard[7][i] != null){
+                row8.add(chessboard[7][i].get_type() + chessboard[7][i].get_player());}
+            else{
+                row8.add("NONE");
+            }
+        }
+
+        savedInstanceState.putStringArrayList("r1", row1);
+        savedInstanceState.putStringArrayList("r2", row2);
+        savedInstanceState.putStringArrayList("r3", row3);
+        savedInstanceState.putStringArrayList("r4", row4);
+        savedInstanceState.putStringArrayList("r5", row5);
+        savedInstanceState.putStringArrayList("r6", row6);
+        savedInstanceState.putStringArrayList("r7", row7);
+        savedInstanceState.putStringArrayList("r8", row8);
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        ArrayList<String> r1 = savedInstanceState.getStringArrayList("r1");
+        ArrayList<String> r2 = savedInstanceState.getStringArrayList("r2");
+        ArrayList<String> r3 = savedInstanceState.getStringArrayList("r3");
+        ArrayList<String> r4 = savedInstanceState.getStringArrayList("r4");
+        ArrayList<String> r5 = savedInstanceState.getStringArrayList("r5");
+        ArrayList<String> r6 = savedInstanceState.getStringArrayList("r6");
+        ArrayList<String> r7 = savedInstanceState.getStringArrayList("r7");
+        ArrayList<String> r8 = savedInstanceState.getStringArrayList("r8");
+
+        WhiteMove = savedInstanceState.getBoolean("move");
+        WhiteName = savedInstanceState.getString("player1");
+        BlackName = savedInstanceState.getString("player2");
+
+        for(int i = 0; i < 8; i++){
+            String s = r1.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[0][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[0][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r2.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[1][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[1][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r3.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[2][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[2][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r4.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[3][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[3][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r5.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[4][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[4][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r6.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[5][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[5][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r7.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[6][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[6][i] = null;
+            }
+        }
+        for(int i = 0; i < 8; i++){
+            String s = r8.get(i);
+            if(!Objects.equals(s, "NONE")){
+                chessboard[7][i] = get_piece(s.substring(0,1), s.substring(1));
+            }
+            else{
+                chessboard[7][i] = null;
+            }
+        }
+
+        update_board();
+
+    }
+
+    public Piece get_piece(String t, String p){
+        switch(t){
+            case("K"):{
+                if(Objects.equals(p, "W")) return new King("W");
+                else return new King("B");
+            }
+            case("Q"):{
+                if(Objects.equals(p, "W")) return new Queen("W");
+                else return new Queen("B");
+            }
+            case("N"):{
+                if(Objects.equals(p, "W")) return new Knight("W");
+                else return new Knight("B");
+            }
+            case("B"):{
+                if(Objects.equals(p, "W")) return new Bishop("W");
+                else return new Bishop("B");
+            }
+            case("R"):{
+                if(Objects.equals(p, "W")) return new Rook("W");
+                else return new Rook("B");
+            }
+            case("P"):{
+                if(Objects.equals(p, "W")) return new Pawn("W");
+                else return new Pawn("B");
+            }
+            default:{
+                return null;
+            }
+        }
+    }
+    */
+
 
 }

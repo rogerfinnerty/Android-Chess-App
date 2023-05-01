@@ -29,6 +29,7 @@ public class user_names extends AppCompatActivity {
         EditText t2 = (EditText) findViewById(R.id.player_two_name);
         intent_1.putExtra("WhiteName", String.valueOf(t1.getText()));
         intent_1.putExtra("BlackName", String.valueOf(t2.getText()));
+        intent_1.putExtra("Bot", false);
         startActivity(intent_1);
 
         // Save names entered by users

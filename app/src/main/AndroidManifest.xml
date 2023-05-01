@@ -22,6 +22,11 @@
             android:label="@string/title_activity_user_names"
             android:theme="@style/Theme.Group12project.NoActionBar" />
         <activity
+            android:name=".user_names_bot"
+            android:exported="false"
+            android:label="@string/title_activity_user_names"
+            android:theme="@style/Theme.Group12project.NoActionBar" />
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings" />
