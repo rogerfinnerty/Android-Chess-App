@@ -34,6 +34,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent_1);
     }
 
+    public void loadGame(){
+        Intent intent = new Intent(this, Chessboard.class);
+        startActivity(intent);
+    }
+
+    public void goToLeaderboard(){
+        Intent intent = new Intent(this, Leaderboard.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,11 +53,10 @@ public class MainActivity extends AppCompatActivity {
         Button load_game = (Button) findViewById(R.id.load_game);
         Button leaderboard = (Button) findViewById(R.id.leaderboard);
 
+        // Buttons switch activities
         new_game.setOnClickListener(view -> goToUserNames());
-        load_game.setOnClickListener(v -> setContentView(R.layout.activity_chessboard));
-        leaderboard.setOnClickListener(v -> {
-            //setContentView(R.layout.fragment_player_names);
-        });
+        load_game.setOnClickListener(view -> loadGame());
+        leaderboard.setOnClickListener(view -> goToLeaderboard());
     }
     private void makeToast() {
         final Handler handler = new Handler();

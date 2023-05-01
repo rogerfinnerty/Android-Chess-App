@@ -722,12 +722,24 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    public void update_leaderboard(String winner, String loser){
+        // Send the winner and losers to the leaderboard
+        Intent intent = new Intent(this, Leaderboard.class);
+
+        intent.putExtra("Winner", winner);
+        intent.putExtra("Loser", loser);
+
+        startActivity(intent);
+    }
     public String whoWon(){
         if(WhiteMove){
+            update_leaderboard(WhiteName,BlackName);
             return WhiteName;
         }
         else{
+            update_leaderboard(BlackName,WhiteName);
             return BlackName;
+
         }
     }
 

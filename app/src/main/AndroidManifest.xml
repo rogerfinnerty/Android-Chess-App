@@ -12,6 +12,11 @@
         android:theme="@style/Theme.Group12project"
         tools:targetApi="31">
         <activity
+            android:name=".Leaderboard"
+            android:exported="false"
+            android:label="@string/title_activity_leaderboard"
+            android:theme="@style/Theme.Group12project.NoActionBar" />
+        <activity
             android:name=".user_names"
             android:exported="false"
             android:label="@string/title_activity_user_names"
@@ -33,7 +38,7 @@
         <activity
             android:name=".Chessboard"
             android:exported="true"
-            android:label="Chessboard"/>
+            android:label="Chessboard" />
     </application>
 
 </manifest>
