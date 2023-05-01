@@ -54,8 +54,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         // need to set WhiteName and BlackName before game starts
         Bundle extras = getIntent().getExtras();
+
         if(extras != null){
-            WhiteName = extras.getString("WhiteName");
+            CPU = extras.getBoolean("Bot");
+            if(!CPU){
+                WhiteName = extras.getString("WhiteName");
+            }
             BlackName = extras.getString("BlackName");
         }
 
@@ -84,7 +88,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         });
 
         Button settingbtn = (Button) findViewById(R.id.settings_btn);
-        homebtn.setOnClickListener(v -> {
+        settingbtn.setOnClickListener(v -> {
             Intent settings = new Intent(this, SettingsActivity.class);
             startActivity(settings);
         });
@@ -745,6 +749,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    /*
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -958,5 +963,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
         }
     }
+    */
+
 
 }
