@@ -2,6 +2,7 @@ package com.example.group12project;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -775,6 +776,19 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     public void update_leaderboard(String winner, String loser){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+
+        if(pref.contains(winner)){
+            int curr = 0;
+            pref.getInt(winner, curr);
+            curr++;
+            editor.putInt(winner, curr);
+        }
+        else{
+
+        }
+
         // Send the winner and losers to the leaderboard
         Intent intent = new Intent(this, Leaderboard.class);
 
