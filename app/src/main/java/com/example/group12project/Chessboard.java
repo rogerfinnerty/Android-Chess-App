@@ -106,8 +106,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         Button settingbtn = (Button) findViewById(R.id.settings_btn);
         settingbtn.setOnClickListener(v -> {
-            Intent settings = new Intent(this, SettingsActivity.class);
-            startActivity(settings);
         });
     }
 
