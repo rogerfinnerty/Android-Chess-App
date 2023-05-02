@@ -176,14 +176,16 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             Intent switchActivityIntent = new Intent(this, MainActivity.class);
             startActivity(switchActivityIntent);
         });
-        builder.setNeutralButton("Update Leaderboard", (DialogInterface.OnClickListener) (dialog, which) -> {
-            if(white_win){
-                update_leaderboard(WhiteName, BlackName);
-            }
-            else{
-                update_leaderboard(BlackName, WhiteName);
-            }
-        });
+        if(!CPU){
+            builder.setNeutralButton("Update Leaderboard", (DialogInterface.OnClickListener) (dialog, which) -> {
+                if(!white_win){
+                    update_leaderboard(WhiteName, BlackName);
+                }
+                else{
+                    update_leaderboard(BlackName, WhiteName);
+                }
+            });
+        }
         // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
         builder.setNegativeButton("Play Again", (DialogInterface.OnClickListener) (dialog, which) -> {
             // If user click no then dialog box is canceled.
