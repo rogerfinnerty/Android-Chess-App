@@ -27,8 +27,28 @@ public class King extends Piece {
 
         // cannot move more than one square unless castling
         if (xdiff > 1 || ydiff > 1) {
-            // add castling logic
-            return false;
+            if (hasMoved)
+                return false;
+            if (end.X() != start.X())
+                return false;
+            if (ydiff != 2)
+                return false;
+            if (end.Y() == 6) {
+                Piece p = board[start.X()][7];
+                if (!(p instanceof Rook))
+                    return false;
+                if (((Rook) p).hasMoved)
+                    return false;
+            }
+            if (end.Y() == 2) {
+                Piece p = board[start.X()][0];
+                if (!(p instanceof Rook))
+                    return false;
+                if (((Rook) p).hasMoved)
+                    return false;
+                if (board[start.X()][1] != null)
+                    return false;
+            }
         }
 
 
@@ -45,8 +65,28 @@ public class King extends Piece {
 
         // cannot move more than one square unless castling
         if (xdiff > 1 || ydiff > 1) {
-            // add castling logic
-            return false;
+            if (hasMoved)
+                return false;
+            if (end.X() != start.X())
+                return false;
+            if (ydiff != 2)
+                return false;
+            if (end.Y() == 6) {
+                Piece p = board[start.X()][7];
+                if (!(p instanceof Rook))
+                    return false;
+                if (((Rook) p).hasMoved)
+                    return false;
+            }
+            if (end.Y() == 2) {
+                Piece p = board[start.X()][0];
+                if (!(p instanceof Rook))
+                    return false;
+                if (((Rook) p).hasMoved)
+                    return false;
+                if (board[start.X()][1] != null)
+                    return false;
+            }
         }
 
         //pretend like king is not there, check if in checkmate?

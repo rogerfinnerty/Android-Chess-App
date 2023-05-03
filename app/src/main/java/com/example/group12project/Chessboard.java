@@ -55,6 +55,8 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     boolean WhiteMove = true;   //starting boolean for move
     boolean CPU = false;
     boolean random = true;
+    boolean castledR = false;
+    boolean castledL = false;
 
     ChessBot bot;
     MediaPlayer mp;
@@ -436,7 +438,18 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     public void player_move(Coordinates start, Coordinates end) {
         Log.d("Clicked:", "Moving");
         Piece p = chessboard[start.X()][start.Y()];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++)
+                if (chessboard[i][j] instanceof Pawn)
+                    ((Pawn) chessboard[i][j]).enPassantable = false;
+        }
+
         if(p instanceof King){
+            if (end.Y() == 6)
+                castledR = true;
+            if (end.Y() == 2)
+                castledL = true;
             if(Objects.equals(p.get_player(), "W")){
                 whiteKingCoord = end;
             }
@@ -448,11 +461,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         if (p instanceof Rook)
             ((Rook) p).hasMoved = true;
         if (p instanceof Pawn){
+            if (Math.abs(end.X() - start.X()) == 2)
+                ((Pawn) p).enPassantable = true;
             if(Objects.equals(p.get_player(), "W") && end.X()==7){
                 p = new Queen("W");
             }
             if(Objects.equals(p.get_player(), "B") && end.X()==0){
                 p = new Queen("B");
+            }
+            if (Math.abs(end.Y() - start.Y()) == 1 && chessboard[end.X()][end.Y()] == null) {
+                chessboard[start.X()][end.Y()] = null;
+                update_piece(null, new Coordinates(start.X(), end.Y()));
             }
         }
 
@@ -472,6 +491,22 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 if(curr[0] == COUNT){
                     update_piece(finalP, end);
 
+                    if (castledL) {
+                        Piece cRook = chessboard[start.X()][0];
+                        chessboard[start.X()][0] = null;
+                        chessboard[start.X()][3] = cRook;
+                        update_piece(cRook,new Coordinates(start.X(),3));
+                        update_piece(null,new Coordinates(start.X(),0));
+                        castledL = false;
+                    }
+                    if (castledR) {
+                        Piece cRook = chessboard[start.X()][7];
+                        chessboard[start.X()][7] = null;
+                        chessboard[start.X()][5] = cRook;
+                        update_piece(cRook,new Coordinates(start.X(),5));
+                        update_piece(null,new Coordinates(start.X(),7));
+                        castledR = false;
+                    }
                 }
                 else {
                     update_piece(finalP, intermediates.get(curr[0]));

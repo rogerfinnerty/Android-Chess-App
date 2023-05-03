@@ -5,6 +5,8 @@ import java.lang.Math;
 
 public class Pawn extends Piece {
 
+    public boolean enPassantable = false;
+
     public Pawn(String p){
         super(p);
         this.type = "P";
@@ -22,11 +24,17 @@ public class Pawn extends Piece {
         if(ydiff != 0){
             if (Math.abs(ydiff) > 1 || Math.abs(xdiff) != 1)
                 return false;
-            if (board[end.X()][end.Y()] == null)
-                return false;
-            if (Objects.equals(this.get_player(), board[end.X()][end.Y()].get_player()))
-                return false;
-            // en passant
+            if (board[end.X()][end.Y()] == null) {
+                if (board[start.X()][end.Y()] == null)
+                    return false;
+                if (Objects.equals(this.get_player(), board[start.X()][end.Y()].get_player()))
+                    return false;
+                if (!((Pawn) board[start.X()][end.Y()]).enPassantable)
+                    return false;
+            }
+            else if (Objects.equals(this.get_player(), board[end.X()][end.Y()].get_player()))
+                    return false;
+
         }
 
         if(Objects.equals(this.get_player(), "B")){
