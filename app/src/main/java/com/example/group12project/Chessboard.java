@@ -47,8 +47,8 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     boolean gameover = false;
     Coordinates whiteKingCoord;
-    boolean whiteThreatMap[][];
-    boolean blackThreatMap[][];
+    boolean[][] whiteThreatMap;
+    boolean[][] blackThreatMap;
     Coordinates blackKingCoord;
     String WhiteName;
     String BlackName;
@@ -159,7 +159,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
         });
 
-        Switch piece_btn = (Switch) findViewById(R.id.piece_btn);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch piece_btn = findViewById(R.id.piece_btn);
         piece_btn.setChecked(true);
         piece_btn.setOnClickListener(v -> {
             piece_theme = !piece_theme;

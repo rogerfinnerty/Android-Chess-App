@@ -40,6 +40,38 @@ public class Leaderboard extends AppCompatActivity {
     SharedPreferences sharedPref;
     public String winner, loser;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_leaderboard);
+        // Initialize sharedPreferences object
+        sharedPref  = getSharedPreferences("Leaderboard", Context.MODE_MULTI_PROCESS);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        // Home button
+        Button home_btn = (Button) findViewById(R.id.home_button);
+        home_btn.setOnClickListener(view -> goToHome());
+
+        // Get player names
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            winner = extras.getString("Winner");
+            loser = extras.getString("Loser");
+
+            // Update leaderboard
+            update_leaderboard(sharedPref, editor,  winner, true);
+            update_leaderboard(sharedPref, editor, loser,false);
+        }
+        editor.apply();
+
+        // Updated leaderboard data
+        Map<String, ?> leaderboardData = getLeaderboardData(sharedPref);
+        // Create table from leaderboard data
+        TableLayout leaderBoard = findViewById(R.id.leaderboard);
+        make_table(leaderBoard,leaderboardData);
+    }
+
+
+
     // Method to save leaderboard data to a preferences file
     public void saveLeaderboardData(SharedPreferences sharedPref, String player, int score) {
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -117,37 +149,5 @@ public class Leaderboard extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_leaderboard);
-        // Initialize sharedPreferences object
-        sharedPref  = getSharedPreferences("Leaderboard", Context.MODE_MULTI_PROCESS);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        // Home button
-        Button home_btn = (Button) findViewById(R.id.home_button);
-        home_btn.setOnClickListener(view -> goToHome());
-
-        // Get player names
-        Bundle extras = getIntent().getExtras();
-        if(extras != null){
-            winner = extras.getString("Winner");
-            loser = extras.getString("Loser");
-
-            // Update leaderboard
-            update_leaderboard(sharedPref, editor,  winner, true);
-            update_leaderboard(sharedPref, editor, loser,false);
-        }
-        editor.apply();
-
-        // Updated leaderboard data
-        Map<String, ?> leaderboardData = getLeaderboardData(sharedPref);
-        // Create table from leaderboard data
-        TableLayout leaderBoard = findViewById(R.id.leaderboard);
-        make_table(leaderBoard,leaderboardData);
-    }
-
-
 
 }

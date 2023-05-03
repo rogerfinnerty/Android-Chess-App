@@ -31,11 +31,20 @@ import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Vector to store entries with a name and number of wins for the leaderboard
-    private static final Vector<Vector<String>> names_wins = new Vector<>();
-    // Function to access the vector across activities
-    public static Vector<Vector<String>> getLeaderboardVector(){
-        return names_wins;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);    // Display main menu
+
+        Button new_game = (Button) findViewById(R.id.new_game);
+        Button leaderboard = (Button) findViewById(R.id.leaderboard);
+        Button new_vs_bot = (Button) findViewById(R.id.Bot);
+        Button rules_btn = (Button) findViewById(R.id.rules);
+
+        new_game.setOnClickListener(view -> goToUserNames());
+        new_vs_bot.setOnClickListener(view -> newBot());
+        leaderboard.setOnClickListener(view -> goToLeaderboard());
+        rules_btn.setOnClickListener(view -> goToRules());
     }
 
     // Function to switch from main activity to usernames activity
@@ -54,20 +63,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);    // Display main menu
-
-        Button new_game = (Button) findViewById(R.id.new_game);
-        Button leaderboard = (Button) findViewById(R.id.leaderboard);
-        Button new_vs_bot = (Button) findViewById(R.id.Bot);
-
-        new_game.setOnClickListener(view -> goToUserNames());
-        new_vs_bot.setOnClickListener(view -> newBot());
-        leaderboard.setOnClickListener(view -> goToLeaderboard());
+    protected void goToRules(){
+        Intent i = new Intent(this, Rules.class);
+        startActivity(i);
     }
+
     private void makeToast() {
         final Handler handler = new Handler();
         handler.post(new Runnable() {

@@ -8,7 +8,7 @@ public class Row implements Comparable<Row>{
         this.wins = w;
     }
     public String getName(){ return name; }
-    public int getWins(){ return (int)wins; }
+    public int getWins(){ return wins; }
     public void setName(String newName){ this.name = newName;}
     public void setWins(Integer w){ this.wins = w; }
 
