@@ -38,43 +38,27 @@ import java.util.List;
 import java.util.Objects;
 
 public class Chessboard extends AppCompatActivity implements View.OnClickListener {
-    static final int ROWS = 8;
-    static final int COLUMNS = 8;
-
-    static Piece[][] chessboard = new Piece[ROWS][COLUMNS];
-    static View[][] chessboard_image = new View[ROWS][COLUMNS];
-    static View[][] background_tiles = new View[ROWS][COLUMNS];
+    static Piece[][] chessboard = new Piece[8][8];
+    static View[][] chessboard_image = new View[8][8];
+    static View[][] background_tiles = new View[8][8];
 
     boolean gameover = false;
-    Coordinates whiteKingCoord;
+    Coordinates whiteKingCoord, blackKingCoord;
     boolean[][] whiteThreatMap;
     boolean[][] blackThreatMap;
-    Coordinates blackKingCoord;
-    String WhiteName;
-    String BlackName;
+    String WhiteName, BlackName;
     boolean WhiteMove = true;   //starting boolean for move
-    boolean CPU = false;
-    boolean random = true;
-    boolean castledR = false;
-    boolean castledL = false;
+    boolean CPU = false, random = true;     // default bot is RandomChessBot
+    boolean castledR = false, castledL = false;
 
     ChessBot bot;
     MediaPlayer mp;
-    boolean sound;
-    boolean mode;
-
-    boolean piece_theme;
-    boolean board_theme;
+    boolean sound, mode, piece_theme, board_theme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chessboard);
-
-        start_board(); // create blank board, add pieces in their starting positions
-        set_tiles();   // fill out background_tiles to use for highlighting
-        blackThreatMap = getThreatMap("B");
-        whiteThreatMap = getThreatMap("W");
 
         // sound effect
         mp = MediaPlayer.create(getApplicationContext(), R.raw.move);
@@ -84,30 +68,34 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         piece_theme = true;
         board_theme = true;
 
+        start_board(); // create blank board, add pieces in their starting positions
+        set_tiles();   // fill out background_tiles to use for highlighting
+        blackThreatMap = getThreatMap("B");
+        whiteThreatMap = getThreatMap("W");
+
+
         // need to set WhiteName and BlackName before game starts
         Bundle extras = getIntent().getExtras();
-
         if(extras != null){
             CPU = extras.getBoolean("Bot");
             if(!CPU){
                 WhiteName = extras.getString("WhiteName");
             }
-            if(CPU){
+            else{
                 if(extras.getBoolean("Random")){
                     System.out.println("Random");
-                    random = true;
-                }
+                    random = true;}
                 else{
                     System.out.println("Aggro");
-                    random = false;
-                }
+                    random = false;}
+                WhiteName = (random) ? "RandomChessBot" : "AggroChessBot";
             }
             BlackName = extras.getString("BlackName");
         }
 
-        TextView nv1 = (TextView) findViewById(R.id.player1_banner);
-        TextView nv2 = (TextView) findViewById(R.id.player2_banner);
-
+        // setting the text of the player banners
+        TextView nv1 = findViewById(R.id.player1_banner);
+        TextView nv2 = findViewById(R.id.player2_banner);
         nv1.setText(BlackName);
         nv2.setText(WhiteName);
 
@@ -121,25 +109,31 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
             List<Coordinates> move = bot.make_move(chessboard, whiteKingCoord);
             move.get(0).display_coord();
-            //move.get(1).display_coord();
             player_move(move.get(1), move.get(0));
         }
 
-        ConstraintLayout back = (ConstraintLayout) findViewById(R.id.layout_chess);
+        ConstraintLayout back = findViewById(R.id.layout_chess);
 
-        Button homebtn = (Button) findViewById(R.id.home_btn);
+        Button homebtn = findViewById(R.id.home_btn);
         homebtn.setOnClickListener(v -> {
             Intent home = new Intent(this, MainActivity.class);
             startActivity(home);
         });
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch sound_btn = (Switch) findViewById(R.id.sound_btn);
-        sound_btn.setChecked(true); // intially on
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch sound_btn = findViewById(R.id.sound_btn);
+        sound_btn.setChecked(true); // initially on
         sound_btn.setOnClickListener(v -> {
             sound = sound_btn.isChecked();
         });
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch mode_btn = (Switch) findViewById(R.id.mode_btn);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch piece_btn = findViewById(R.id.piece_btn);
+        piece_btn.setChecked(true);
+        piece_btn.setOnClickListener(v -> {
+            piece_theme = !piece_theme;
+            update_board();
+        });
+
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch mode_btn = findViewById(R.id.mode_btn);
         mode_btn.setChecked(true);
         mode_btn.setOnClickListener(v -> {
             mode = !mode;
@@ -147,6 +141,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 back.setBackgroundColor(0xFF33B5E5);
                 sound_btn.setTextColor(Color.DKGRAY);
                 mode_btn.setTextColor(Color.DKGRAY);
+                piece_btn.setTextColor(Color.DKGRAY);
                 nv1.setTextColor(Color.DKGRAY);
                 nv2.setTextColor(Color.DKGRAY);
             }
@@ -154,16 +149,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 back.setBackgroundColor(0xFF00008B);
                 sound_btn.setTextColor(Color.WHITE);
                 mode_btn.setTextColor(Color.WHITE);
+                piece_btn.setTextColor(Color.WHITE);
                 nv1.setTextColor(Color.WHITE);
                 nv2.setTextColor(Color.WHITE);
             }
         });
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch piece_btn = findViewById(R.id.piece_btn);
-        piece_btn.setChecked(true);
-        piece_btn.setOnClickListener(v -> {
-            piece_theme = !piece_theme;
-        });
     }
 
     public void buildPopup(boolean white_win){
@@ -194,86 +185,92 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             this.recreate();
         });
 
-        // Create the Alert dialog
-        AlertDialog alertDialog = builder.create();
-        // Show the Alert Dialog box
-        alertDialog.show();
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                // Create the Alert dialog
+                AlertDialog alertDialog = builder.create();
+                // Show the Alert Dialog box
+                alertDialog.show();
+            }
+        };
+        handler.postDelayed(runnable, 2000);
     }
 
     public void start_board() {
         // start King Coordinates
         whiteKingCoord = new Coordinates(0,4);
         blackKingCoord = new Coordinates(7,4);
-
         // WHITE PIECES
         chessboard[0][0] = new Rook("W");
-        chessboard_image[0][0] = (TextView) findViewById(R.id.i00);
+        chessboard_image[0][0] = findViewById(R.id.i00);
         chessboard[0][1] = new Knight("W");
-        chessboard_image[0][1] = (TextView) findViewById(R.id.i01);
+        chessboard_image[0][1] = findViewById(R.id.i01);
         chessboard[0][2] = new Bishop("W");
-        chessboard_image[0][2] = (TextView) findViewById(R.id.i02);
+        chessboard_image[0][2] = findViewById(R.id.i02);
         chessboard[0][3] = new Queen("W");
-        chessboard_image[0][3] = (TextView) findViewById(R.id.i03);
+        chessboard_image[0][3] = findViewById(R.id.i03);
         chessboard[0][4] = new King("W");
-        chessboard_image[0][4] = (TextView) findViewById(R.id.i04);
+        chessboard_image[0][4] = findViewById(R.id.i04);
         chessboard[0][5] = new Bishop("W");
-        chessboard_image[0][5] = (TextView) findViewById(R.id.i05);
+        chessboard_image[0][5] = findViewById(R.id.i05);
         chessboard[0][6] = new Knight("W");
-        chessboard_image[0][6] = (TextView) findViewById(R.id.i06);
+        chessboard_image[0][6] = findViewById(R.id.i06);
         chessboard[0][7] = new Rook("W");
-        chessboard_image[0][7] = (TextView) findViewById(R.id.i07);
+        chessboard_image[0][7] = findViewById(R.id.i07);
 
         chessboard[1][0] = new Pawn("W");
-        chessboard_image[1][0] = (TextView) findViewById(R.id.i10);
+        chessboard_image[1][0] = findViewById(R.id.i10);
         chessboard[1][1] = new Pawn("W");
-        chessboard_image[1][1] = (TextView) findViewById(R.id.i11);
+        chessboard_image[1][1] = findViewById(R.id.i11);
         chessboard[1][2] = new Pawn("W");
-        chessboard_image[1][2] = (TextView) findViewById(R.id.i12);
+        chessboard_image[1][2] = findViewById(R.id.i12);
         chessboard[1][3] = new Pawn("W");
-        chessboard_image[1][3] = (TextView) findViewById(R.id.i13);
+        chessboard_image[1][3] = findViewById(R.id.i13);
         chessboard[1][4] = new Pawn("W");
-        chessboard_image[1][4] = (TextView) findViewById(R.id.i14);
+        chessboard_image[1][4] = findViewById(R.id.i14);
         chessboard[1][5] = new Pawn("W");
-        chessboard_image[1][5] = (TextView) findViewById(R.id.i15);
+        chessboard_image[1][5] = findViewById(R.id.i15);
         chessboard[1][6] = new Pawn("W");
-        chessboard_image[1][6] = (TextView) findViewById(R.id.i16);
+        chessboard_image[1][6] = findViewById(R.id.i16);
         chessboard[1][7] = new Pawn("W");
-        chessboard_image[1][7] = (TextView) findViewById(R.id.i17);
+        chessboard_image[1][7] = findViewById(R.id.i17);
 
         // BLACK PIECES
         chessboard[7][0] = new Rook("B");
-        chessboard_image[7][0] = (TextView) findViewById(R.id.i70);
+        chessboard_image[7][0] = findViewById(R.id.i70);
         chessboard[7][1] = new Knight("B");
-        chessboard_image[7][1] = (TextView) findViewById(R.id.i71);
+        chessboard_image[7][1] = findViewById(R.id.i71);
         chessboard[7][2] = new Bishop("B");
-        chessboard_image[7][2] = (TextView) findViewById(R.id.i72);
+        chessboard_image[7][2] = findViewById(R.id.i72);
         chessboard[7][3] = new Queen("B");
-        chessboard_image[7][3] = (TextView) findViewById(R.id.i73);
+        chessboard_image[7][3] = findViewById(R.id.i73);
         chessboard[7][4] = new King("B");
-        chessboard_image[7][4] = (TextView) findViewById(R.id.i74);
+        chessboard_image[7][4] = findViewById(R.id.i74);
         chessboard[7][5] = new Bishop("B");
-        chessboard_image[7][5] = (TextView) findViewById(R.id.i75);
+        chessboard_image[7][5] = findViewById(R.id.i75);
         chessboard[7][6] = new Knight("B");
-        chessboard_image[7][6] = (TextView) findViewById(R.id.i76);
+        chessboard_image[7][6] = findViewById(R.id.i76);
         chessboard[7][7] = new Rook("B");
-        chessboard_image[7][7] = (TextView) findViewById(R.id.i77);
+        chessboard_image[7][7] = findViewById(R.id.i77);
 
         chessboard[6][0] = new Pawn("B");
-        chessboard_image[6][0] = (TextView) findViewById(R.id.i60);
+        chessboard_image[6][0] = findViewById(R.id.i60);
         chessboard[6][1] = new Pawn("B");
-        chessboard_image[6][1] = (TextView) findViewById(R.id.i61);
+        chessboard_image[6][1] = findViewById(R.id.i61);
         chessboard[6][2] = new Pawn("B");
-        chessboard_image[6][2] = (TextView) findViewById(R.id.i62);
+        chessboard_image[6][2] = findViewById(R.id.i62);
         chessboard[6][3] = new Pawn("B");
-        chessboard_image[6][3] = (TextView) findViewById(R.id.i63);
+        chessboard_image[6][3] = findViewById(R.id.i63);
         chessboard[6][4] = new Pawn("B");
-        chessboard_image[6][4] = (TextView) findViewById(R.id.i64);
+        chessboard_image[6][4] = findViewById(R.id.i64);
         chessboard[6][5] = new Pawn("B");
-        chessboard_image[6][5] = (TextView) findViewById(R.id.i65);
+        chessboard_image[6][5] = findViewById(R.id.i65);
         chessboard[6][6] = new Pawn("B");
-        chessboard_image[6][6] = (TextView) findViewById(R.id.i66);
+        chessboard_image[6][6] = findViewById(R.id.i66);
         chessboard[6][7] = new Pawn("B");
-        chessboard_image[6][7] = (TextView) findViewById(R.id.i67);
+        chessboard_image[6][7] = findViewById(R.id.i67);
 
         // filling blanks
         for (int i = 2; i < 6; i++) {
@@ -282,39 +279,38 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
         }
 
-        chessboard_image[2][0] = (TextView) findViewById(R.id.i20);
-        chessboard_image[2][1] = (TextView) findViewById(R.id.i21);
-        chessboard_image[2][2] = (TextView) findViewById(R.id.i22);
-        chessboard_image[2][3] = (TextView) findViewById(R.id.i23);
-        chessboard_image[2][4] = (TextView) findViewById(R.id.i24);
-        chessboard_image[2][5] = (TextView) findViewById(R.id.i25);
-        chessboard_image[2][6] = (TextView) findViewById(R.id.i26);
-        chessboard_image[2][7] = (TextView) findViewById(R.id.i27);
-        chessboard_image[3][0] = (TextView) findViewById(R.id.i30);
-        chessboard_image[3][1] = (TextView) findViewById(R.id.i31);
-        chessboard_image[3][2] = (TextView) findViewById(R.id.i32);
-        chessboard_image[3][3] = (TextView) findViewById(R.id.i33);
-        chessboard_image[3][4] = (TextView) findViewById(R.id.i34);
-        chessboard_image[3][5] = (TextView) findViewById(R.id.i35);
-        chessboard_image[3][6] = (TextView) findViewById(R.id.i36);
-        chessboard_image[3][7] = (TextView) findViewById(R.id.i37);
-        chessboard_image[4][0] = (TextView) findViewById(R.id.i40);
-        chessboard_image[4][1] = (TextView) findViewById(R.id.i41);
-        chessboard_image[4][2] = (TextView) findViewById(R.id.i42);
-        chessboard_image[4][3] = (TextView) findViewById(R.id.i43);
-        chessboard_image[4][4] = (TextView) findViewById(R.id.i44);
-        chessboard_image[4][5] = (TextView) findViewById(R.id.i45);
-        chessboard_image[4][6] = (TextView) findViewById(R.id.i46);
-        chessboard_image[4][7] = (TextView) findViewById(R.id.i47);
-        chessboard_image[5][0] = (TextView) findViewById(R.id.i50);
-        chessboard_image[5][1] = (TextView) findViewById(R.id.i51);
-        chessboard_image[5][2] = (TextView) findViewById(R.id.i52);
-        chessboard_image[5][3] = (TextView) findViewById(R.id.i53);
-        chessboard_image[5][4] = (TextView) findViewById(R.id.i54);
-        chessboard_image[5][5] = (TextView) findViewById(R.id.i55);
-        chessboard_image[5][6] = (TextView) findViewById(R.id.i56);
-        chessboard_image[5][7] = (TextView) findViewById(R.id.i57);
-
+        chessboard_image[2][0] =  findViewById(R.id.i20);
+        chessboard_image[2][1] =  findViewById(R.id.i21);
+        chessboard_image[2][2] =  findViewById(R.id.i22);
+        chessboard_image[2][3] =  findViewById(R.id.i23);
+        chessboard_image[2][4] =  findViewById(R.id.i24);
+        chessboard_image[2][5] =  findViewById(R.id.i25);
+        chessboard_image[2][6] =  findViewById(R.id.i26);
+        chessboard_image[2][7] =  findViewById(R.id.i27);
+        chessboard_image[3][0] =  findViewById(R.id.i30);
+        chessboard_image[3][1] =  findViewById(R.id.i31);
+        chessboard_image[3][2] =  findViewById(R.id.i32);
+        chessboard_image[3][3] =  findViewById(R.id.i33);
+        chessboard_image[3][4] =  findViewById(R.id.i34);
+        chessboard_image[3][5] =  findViewById(R.id.i35);
+        chessboard_image[3][6] =  findViewById(R.id.i36);
+        chessboard_image[3][7] =  findViewById(R.id.i37);
+        chessboard_image[4][0] =  findViewById(R.id.i40);
+        chessboard_image[4][1] =  findViewById(R.id.i41);
+        chessboard_image[4][2] =  findViewById(R.id.i42);
+        chessboard_image[4][3] =  findViewById(R.id.i43);
+        chessboard_image[4][4] =  findViewById(R.id.i44);
+        chessboard_image[4][5] =  findViewById(R.id.i45);
+        chessboard_image[4][6] =  findViewById(R.id.i46);
+        chessboard_image[4][7] =  findViewById(R.id.i47);
+        chessboard_image[5][0] =  findViewById(R.id.i50);
+        chessboard_image[5][1] =  findViewById(R.id.i51);
+        chessboard_image[5][2] =  findViewById(R.id.i52);
+        chessboard_image[5][3] =  findViewById(R.id.i53);
+        chessboard_image[5][4] =  findViewById(R.id.i54);
+        chessboard_image[5][5] =  findViewById(R.id.i55);
+        chessboard_image[5][6] =  findViewById(R.id.i56);
+        chessboard_image[5][7] =  findViewById(R.id.i57);
         // initial updating
         update_board();
     }
@@ -322,123 +318,60 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     public void update_board() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                Piece p = chessboard[i][j];
-                if (p == null) {
-                    chessboard_image[i][j].setBackgroundResource(0);
-                    break;
-                }
-                switch (p.get_type()) {
-                    case ("K"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.king_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.king_black);
-                        }
-                        break;
-                    case ("Q"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.queen_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.queen_black);
-                        }
-                        break;
-                    case ("B"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.bishop_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.bishop_black);
-                        }
-                        break;
-                    case ("R"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.rook_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.rook_black);
-                        }
-                        break;
-                    case ("P"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.pawn_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.pawn_black);
-                        }
-                        break;
-                    case ("N"):
-                        if (Objects.equals(p.get_player(), "W")) {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.knight_white);
-                        } else {
-                            chessboard_image[i][j].setBackgroundResource(R.drawable.knight_black);
-                        }
-                        break;
-                    default:
-                        chessboard_image[i][j].setBackgroundResource(0);
-                        break;
-                }
+                update_piece(chessboard[i][j], new Coordinates(i, j));
             }
         }
-        Log.d("Update", "complete");
     }
 
     public void update_piece(Piece p, Coordinates newCo) {
         if (p == null) {
             chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(0);
-            return;
-        }
+            return;}
         switch (p.get_type()) {
             case ("K"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.king_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.king_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.king_white : R.drawable.white_king_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.king_black : R.drawable.black_king_2);}
                 break;
             case ("Q"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.queen_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.queen_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.queen_white : R.drawable.white_queen_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.queen_black : R.drawable.black_queen_2);}
                 break;
             case ("B"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.bishop_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.bishop_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.bishop_white : R.drawable.white_bishop_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.bishop_black : R.drawable.black_bishop_2);}
                 break;
             case ("R"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.rook_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.rook_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.rook_white : R.drawable.white_rook_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.rook_black : R.drawable.black_rook_2);}
                 break;
             case ("P"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.pawn_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.pawn_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.pawn_white : R.drawable.white_pawn_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.pawn_black : R.drawable.black_pawn_2);}
                 break;
             case ("N"):
                 if (Objects.equals(p.get_player(), "W")) {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.knight_white);
-                } else {
-                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(R.drawable.knight_black);
-                }
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.knight_white : R.drawable.white_knight_2);}
+                else {
+                    chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource((piece_theme) ? R.drawable.knight_black : R.drawable.black_knight_2);}
                 break;
             default:
                 chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(0);
                 break;
         }
-        Log.d("Update", "complete");
-        SystemClock.sleep(100);
     }
 
     public void player_move(Coordinates start, Coordinates end) {
-        Log.d("Clicked:", "Moving");
         Piece p = chessboard[start.X()][start.Y()];
-
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
                 if (chessboard[i][j] instanceof Pawn)
@@ -474,7 +407,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 update_piece(null, new Coordinates(start.X(), end.Y()));
             }
         }
-
         // run hopping animation between start and end
         List<Coordinates> intermediates = Coordinates.places_between(start, end);
         Handler handler = new Handler();
@@ -486,11 +418,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             public void run() {
                 update_piece(null, lag[0]);
                 if(sound){
-                    mp.start();
-                }
+                    mp.start();}
                 if(curr[0] == COUNT){
                     update_piece(finalP, end);
-
                     if (castledL) {
                         Piece cRook = chessboard[start.X()][0];
                         chessboard[start.X()][0] = null;
@@ -517,13 +447,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             }
         };
         handler.postDelayed(r, 400);
-
-        chessboard[end.X()][end.Y()] = p;
-        //update_piece(null, start); // empty spot
-        chessboard[start.X()][start.Y()] = null;
-
-        // update move
-        WhiteMove = !WhiteMove;
+        chessboard[end.X()][end.Y()] = p;   // fill end spot with piece to move
+        chessboard[start.X()][start.Y()] = null; // empty spot at start
+        WhiteMove = !WhiteMove; // update move
     }
 
     boolean haveSelect = false;
@@ -532,11 +458,8 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        if(gameover){
+        if(gameover || (CPU && WhiteMove)){
             return;
-        }
-        if(CPU){
-            if(WhiteMove){ return; }
         }
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -551,12 +474,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         if(c == null){
             return;
         }
-        Log.d("Clicked:", c.X() + " , " + c.Y());
-        Log.d("WhiteMove:", WhiteMove + " ");
         if (!haveSelect && chessboard[c.X()][c.Y()] != null) {  // select a piece
             if((Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) != WhiteMove){
-                return;
-            }
+                return;}
             startSelect = c;
             highlight_tile(c);
             highlight_all_possible(c);
@@ -672,70 +592,70 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
 
     public void set_tiles() {
-        background_tiles[0][0] = (TextView) findViewById(R.id.r00);
-        background_tiles[0][1] = (TextView) findViewById(R.id.r01);
-        background_tiles[0][2] = (TextView) findViewById(R.id.r02);
-        background_tiles[0][3] = (TextView) findViewById(R.id.r03);
-        background_tiles[0][4] = (TextView) findViewById(R.id.r04);
-        background_tiles[0][5] = (TextView) findViewById(R.id.r05);
-        background_tiles[0][6] = (TextView) findViewById(R.id.r06);
-        background_tiles[0][7] = (TextView) findViewById(R.id.r07);
-        background_tiles[1][0] = (TextView) findViewById(R.id.r10);
-        background_tiles[1][1] = (TextView) findViewById(R.id.r11);
-        background_tiles[1][2] = (TextView) findViewById(R.id.r12);
-        background_tiles[1][3] = (TextView) findViewById(R.id.r13);
-        background_tiles[1][4] = (TextView) findViewById(R.id.r14);
-        background_tiles[1][5] = (TextView) findViewById(R.id.r15);
-        background_tiles[1][6] = (TextView) findViewById(R.id.r16);
-        background_tiles[1][7] = (TextView) findViewById(R.id.r17);
-        background_tiles[2][0] = (TextView) findViewById(R.id.r20);
-        background_tiles[2][1] = (TextView) findViewById(R.id.r21);
-        background_tiles[2][2] = (TextView) findViewById(R.id.r22);
-        background_tiles[2][3] = (TextView) findViewById(R.id.r23);
-        background_tiles[2][4] = (TextView) findViewById(R.id.r24);
-        background_tiles[2][5] = (TextView) findViewById(R.id.r25);
-        background_tiles[2][6] = (TextView) findViewById(R.id.r26);
-        background_tiles[2][7] = (TextView) findViewById(R.id.r27);
-        background_tiles[3][0] = (TextView) findViewById(R.id.r30);
-        background_tiles[3][1] = (TextView) findViewById(R.id.r31);
-        background_tiles[3][2] = (TextView) findViewById(R.id.r32);
-        background_tiles[3][3] = (TextView) findViewById(R.id.r33);
-        background_tiles[3][4] = (TextView) findViewById(R.id.r34);
-        background_tiles[3][5] = (TextView) findViewById(R.id.r35);
-        background_tiles[3][6] = (TextView) findViewById(R.id.r36);
-        background_tiles[3][7] = (TextView) findViewById(R.id.r37);
-        background_tiles[4][0] = (TextView) findViewById(R.id.r40);
-        background_tiles[4][1] = (TextView) findViewById(R.id.r41);
-        background_tiles[4][2] = (TextView) findViewById(R.id.r42);
-        background_tiles[4][3] = (TextView) findViewById(R.id.r43);
-        background_tiles[4][4] = (TextView) findViewById(R.id.r44);
-        background_tiles[4][5] = (TextView) findViewById(R.id.r45);
-        background_tiles[4][6] = (TextView) findViewById(R.id.r46);
-        background_tiles[4][7] = (TextView) findViewById(R.id.r47);
-        background_tiles[5][0] = (TextView) findViewById(R.id.r50);
-        background_tiles[5][1] = (TextView) findViewById(R.id.r51);
-        background_tiles[5][2] = (TextView) findViewById(R.id.r52);
-        background_tiles[5][3] = (TextView) findViewById(R.id.r53);
-        background_tiles[5][4] = (TextView) findViewById(R.id.r54);
-        background_tiles[5][5] = (TextView) findViewById(R.id.r55);
-        background_tiles[5][6] = (TextView) findViewById(R.id.r56);
-        background_tiles[5][7] = (TextView) findViewById(R.id.r57);
-        background_tiles[6][0] = (TextView) findViewById(R.id.r60);
-        background_tiles[6][1] = (TextView) findViewById(R.id.r61);
-        background_tiles[6][2] = (TextView) findViewById(R.id.r62);
-        background_tiles[6][3] = (TextView) findViewById(R.id.r63);
-        background_tiles[6][4] = (TextView) findViewById(R.id.r64);
-        background_tiles[6][5] = (TextView) findViewById(R.id.r65);
-        background_tiles[6][6] = (TextView) findViewById(R.id.r66);
-        background_tiles[6][7] = (TextView) findViewById(R.id.r67);
-        background_tiles[7][0] = (TextView) findViewById(R.id.r70);
-        background_tiles[7][1] = (TextView) findViewById(R.id.r71);
-        background_tiles[7][2] = (TextView) findViewById(R.id.r72);
-        background_tiles[7][3] = (TextView) findViewById(R.id.r73);
-        background_tiles[7][4] = (TextView) findViewById(R.id.r74);
-        background_tiles[7][5] = (TextView) findViewById(R.id.r75);
-        background_tiles[7][6] = (TextView) findViewById(R.id.r76);
-        background_tiles[7][7] = (TextView) findViewById(R.id.r77);
+        background_tiles[0][0] = findViewById(R.id.r00);
+        background_tiles[0][1] = findViewById(R.id.r01);
+        background_tiles[0][2] = findViewById(R.id.r02);
+        background_tiles[0][3] = findViewById(R.id.r03);
+        background_tiles[0][4] = findViewById(R.id.r04);
+        background_tiles[0][5] = findViewById(R.id.r05);
+        background_tiles[0][6] = findViewById(R.id.r06);
+        background_tiles[0][7] = findViewById(R.id.r07);
+        background_tiles[1][0] = findViewById(R.id.r10);
+        background_tiles[1][1] = findViewById(R.id.r11);
+        background_tiles[1][2] = findViewById(R.id.r12);
+        background_tiles[1][3] = findViewById(R.id.r13);
+        background_tiles[1][4] = findViewById(R.id.r14);
+        background_tiles[1][5] = findViewById(R.id.r15);
+        background_tiles[1][6] = findViewById(R.id.r16);
+        background_tiles[1][7] = findViewById(R.id.r17);
+        background_tiles[2][0] = findViewById(R.id.r20);
+        background_tiles[2][1] = findViewById(R.id.r21);
+        background_tiles[2][2] = findViewById(R.id.r22);
+        background_tiles[2][3] = findViewById(R.id.r23);
+        background_tiles[2][4] = findViewById(R.id.r24);
+        background_tiles[2][5] = findViewById(R.id.r25);
+        background_tiles[2][6] = findViewById(R.id.r26);
+        background_tiles[2][7] = findViewById(R.id.r27);
+        background_tiles[3][0] = findViewById(R.id.r30);
+        background_tiles[3][1] = findViewById(R.id.r31);
+        background_tiles[3][2] = findViewById(R.id.r32);
+        background_tiles[3][3] = findViewById(R.id.r33);
+        background_tiles[3][4] = findViewById(R.id.r34);
+        background_tiles[3][5] = findViewById(R.id.r35);
+        background_tiles[3][6] = findViewById(R.id.r36);
+        background_tiles[3][7] = findViewById(R.id.r37);
+        background_tiles[4][0] = findViewById(R.id.r40);
+        background_tiles[4][1] = findViewById(R.id.r41);
+        background_tiles[4][2] = findViewById(R.id.r42);
+        background_tiles[4][3] = findViewById(R.id.r43);
+        background_tiles[4][4] = findViewById(R.id.r44);
+        background_tiles[4][5] = findViewById(R.id.r45);
+        background_tiles[4][6] = findViewById(R.id.r46);
+        background_tiles[4][7] = findViewById(R.id.r47);
+        background_tiles[5][0] = findViewById(R.id.r50);
+        background_tiles[5][1] = findViewById(R.id.r51);
+        background_tiles[5][2] = findViewById(R.id.r52);
+        background_tiles[5][3] = findViewById(R.id.r53);
+        background_tiles[5][4] = findViewById(R.id.r54);
+        background_tiles[5][5] = findViewById(R.id.r55);
+        background_tiles[5][6] = findViewById(R.id.r56);
+        background_tiles[5][7] = findViewById(R.id.r57);
+        background_tiles[6][0] = findViewById(R.id.r60);
+        background_tiles[6][1] = findViewById(R.id.r61);
+        background_tiles[6][2] = findViewById(R.id.r62);
+        background_tiles[6][3] = findViewById(R.id.r63);
+        background_tiles[6][4] = findViewById(R.id.r64);
+        background_tiles[6][5] = findViewById(R.id.r65);
+        background_tiles[6][6] = findViewById(R.id.r66);
+        background_tiles[6][7] = findViewById(R.id.r67);
+        background_tiles[7][0] = findViewById(R.id.r70);
+        background_tiles[7][1] = findViewById(R.id.r71);
+        background_tiles[7][2] = findViewById(R.id.r72);
+        background_tiles[7][3] = findViewById(R.id.r73);
+        background_tiles[7][4] = findViewById(R.id.r74);
+        background_tiles[7][5] = findViewById(R.id.r75);
+        background_tiles[7][6] = findViewById(R.id.r76);
+        background_tiles[7][7] = findViewById(R.id.r77);
     }
     public void highlight_tile(Coordinates c){
         // this method highlights the tile at coordinate c to light blue
