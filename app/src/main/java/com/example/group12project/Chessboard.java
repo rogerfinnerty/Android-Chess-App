@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -54,6 +55,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     ChessBot bot;
     MediaPlayer mp;
     boolean sound, mode, piece_theme, board_theme;
+
+
+    @ColorInt int white1 = Color.WHITE;
+    @ColorInt int black1 = (0xB5B5B5);
+    @ColorInt int white2 = 0x887F72;
+    @ColorInt int black2 = 0x4B3A39;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +140,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             update_board();
         });
 
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch board_btn = findViewById(R.id.board_btn);
+        board_btn.setChecked(true);
+        board_btn.setOnClickListener(v -> {
+            board_theme = !board_theme;
+            updateBoardColor();
+        });
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch mode_btn = findViewById(R.id.mode_btn);
         mode_btn.setChecked(true);
         mode_btn.setOnClickListener(v -> {
@@ -679,10 +692,10 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         TextView v = (TextView) background_tiles[c.X()][c.Y()];
         v.setText("");
         if(c.isWhite()){
-            v.setBackgroundColor(Color.WHITE); // white
+            v.setBackgroundColor((board_theme) ? Color.WHITE : 0xFF887F72); // white
         }
         else{
-            v.setBackgroundColor(Color.rgb(181, 181,181)); // gray
+            v.setBackgroundColor((board_theme) ? 0xFFB5B5B5 : 0xFF4B3A39); // gray
         }
     }
 
@@ -777,13 +790,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         return true;
     }
 
-
-    public void shallow_move(Coordinates start, Coordinates end){
-        chessboard[end.X()][end.Y()] = chessboard[start.X()][start.Y()];
-        chessboard[start.X()][start.Y()] = null;
-    }
-
-
     public void update_leaderboard(String winner, String loser){
         // Send the winner and losers to the leaderboard
         Intent intent = new Intent(this, Leaderboard.class);
@@ -819,6 +825,19 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 }
             }
             System.out.println();
+        }
+    }
+
+    public void updateBoardColor(){
+        for(int i = 0; i < 8; i++){
+            for(int j =0; j < 8; j++){
+                if((i+j)%2==0){ // case for white
+                    background_tiles[i][j].setBackgroundColor((board_theme) ? Color.WHITE : 0xFF887F72);
+                }
+                else{
+                    background_tiles[i][j].setBackgroundColor((board_theme) ? 0xFFB5B5B5 : 0xFF4B3A39);
+                }
+            }
         }
     }
 
