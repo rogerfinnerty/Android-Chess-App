@@ -29,7 +29,10 @@ public class Pawn extends Piece {
                     return false;
                 if (Objects.equals(this.get_player(), board[start.X()][end.Y()].get_player()))
                     return false;
-                if (!((Pawn) board[start.X()][end.Y()]).enPassantable)
+                if (board[start.X()][end.Y()] instanceof Pawn)
+                    if (!((Pawn) board[start.X()][end.Y()]).enPassantable)
+                        return false;
+                else
                     return false;
             }
             else if (Objects.equals(this.get_player(), board[end.X()][end.Y()].get_player()))

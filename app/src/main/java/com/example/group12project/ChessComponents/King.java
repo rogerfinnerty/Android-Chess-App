@@ -113,6 +113,14 @@ public class King extends Piece {
             }
         }
 
+        List<Coordinates> between = Coordinates.places_between(start, end);
+        for(Coordinates i : between){
+            if(board[i.X()][i.Y()] != null){
+                if (Objects.equals(board[i.X()][i.Y()].get_player(), this.get_player()))
+                    return false;
+            }
+        }
+
         // check if pawn will make the King in check with diagonal take
         int pawn_dir = (Objects.equals(type, "W")) ? -1 : 1;
         if(end.X()+pawn_dir < 8 && end.Y()+1 < 8){
