@@ -1,9 +1,5 @@
 package com.example.group12project.ChessComponents;
 
-import android.util.Log;
-
-import com.example.group12project.Chessboard;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +62,6 @@ public class King extends Piece {
             }
         }
         if(end.X()+pawn_dir < 8){
-            Piece potPawn3 = board[end.X()+pawn_dir][end.Y()];
             Coordinates checker = this.checkByWho(board, end);
             if(checker != null && board[checker.X()][checker.Y()] instanceof Pawn && checker.equals(new Coordinates(end.X()+pawn_dir, end.Y()))){
                 // if the checker is pawn in front of king's end spot, we know the coast is clear
@@ -136,7 +131,6 @@ public class King extends Piece {
             }
         }
         if(end.X()+pawn_dir < 8){
-            Piece potPawn3 = board[end.X()+pawn_dir][end.Y()];
             Coordinates checker = this.checkByWho(board, end);
             if(checker != null && board[checker.X()][checker.Y()] instanceof Pawn && checker.equals(new Coordinates(end.X()+pawn_dir, end.Y()))){
                 // if the checker is pawn in front of king's end spot, we know the coast is clear
@@ -179,7 +173,6 @@ public class King extends Piece {
     public boolean kingInCheck(Piece[][] chessboard, Coordinates king_square){
         // checks all spots, all pieces to see if they can attack the King
         // first remove king
-        chessboard[king_square.X()][king_square.X()] = null;
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
