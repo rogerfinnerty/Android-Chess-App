@@ -1,7 +1,6 @@
 package com.example.group12project;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -12,7 +11,6 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -151,7 +149,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     }
 
-    public void buildPopup(boolean white_win){
+    private void buildPopup(boolean white_win){
         AlertDialog.Builder builder = new AlertDialog.Builder(Chessboard.this);
 
         builder.setMessage("Good Job. Play again?");
@@ -189,7 +187,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         handler.postDelayed(runnable, 2000);
     }
 
-    public void start_board() {
+    private void start_board() {
         // start King Coordinates
         whiteKingCoord = new Coordinates(0,4);
         blackKingCoord = new Coordinates(7,4);
@@ -306,7 +304,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         update_board();
     }
 
-    public void update_board() {
+    private void update_board() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 update_piece(chessboard[i][j], new Coordinates(i, j));
@@ -314,7 +312,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void update_piece(Piece p, Coordinates newCo) {
+    private void update_piece(Piece p, Coordinates newCo) {
         if (p == null) {
             chessboard_image[newCo.X()][newCo.Y()].setBackgroundResource(0);
             return;}
@@ -361,7 +359,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void player_move(Coordinates start, Coordinates end) {
+    private void player_move(Coordinates start, Coordinates end) {
         Piece p = chessboard[start.X()][start.Y()];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
@@ -462,7 +460,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
         TextView t = findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
-        c.display_coord();
         if(c == null){
             return;
         }
@@ -510,7 +507,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                         buildPopup(WhiteMove);
                         return;
                     }
-                    System.out.println("Checking");
                     if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
                     }
@@ -562,7 +558,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                         buildPopup(WhiteMove);
                         return;
                     }
-                    System.out.println("Checking");
                     if(((King)chessboard[whiteKingCoord.X()][whiteKingCoord.Y()]).kingInCheck(chessboard, whiteKingCoord)){
                         background_tiles[whiteKingCoord.X()][whiteKingCoord.Y()].setBackgroundColor(Color.rgb(255, 165, 57));
                     }
@@ -584,7 +579,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void set_tiles() {
+    private void set_tiles() {
         background_tiles[0][0] = findViewById(R.id.r00);
         background_tiles[0][1] = findViewById(R.id.r01);
         background_tiles[0][2] = findViewById(R.id.r02);
@@ -650,12 +645,12 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         background_tiles[7][6] = findViewById(R.id.r76);
         background_tiles[7][7] = findViewById(R.id.r77);
     }
-    public void highlight_tile(Coordinates c){
+    private void highlight_tile(Coordinates c){
         // this method highlights the tile at coordinate c to light blue
         TextView v = (TextView) background_tiles[c.X()][c.Y()];
         v.setBackgroundColor(Color.rgb(153, 255, 255));
     }
-    public void highlight_tile_possible(Coordinates c){
+    private void highlight_tile_possible(Coordinates c){
         // this method adds green dot to background tile unless there is piece, in which case piece is magenta
         TextView v = (TextView) chessboard_image[c.X()][c.Y()];
         if(chessboard[c.X()][c.Y()] == null){
@@ -665,7 +660,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             background_tiles[c.X()][c.Y()].setBackgroundColor(Color.MAGENTA);
         }
     }
-    public void unhighlight_tile(Coordinates c){
+    private void unhighlight_tile(Coordinates c){
         // this method removes highlight on any tile by resetting back to its original color
         // which is found through a check of the coordinate passed as a parameter
         TextView v = (TextView) background_tiles[c.X()][c.Y()];
@@ -678,7 +673,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void unhighlight_tile_possible(Coordinates c){
+    private void unhighlight_tile_possible(Coordinates c){
         TextView v = (TextView) chessboard_image[c.X()][c.Y()];
         if(chessboard[c.X()][c.Y()] == null){
             v.setBackgroundResource(0);
@@ -688,7 +683,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void unhighlight_all_possible(Coordinates c){
+    private void unhighlight_all_possible(Coordinates c){
         Piece p = chessboard[c.X()][c.Y()];
         Coordinates thisKing = (Objects.equals(chessboard[c.X()][c.Y()].get_player(), "W")) ? whiteKingCoord : blackKingCoord;
         List<Coordinates> all_pos = p.allPossibleMoves(chessboard, c, thisKing);
@@ -712,7 +707,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     }
 
     // need to add win condition in this function
-    public boolean win(Coordinates king){
+    private boolean win(Coordinates king){
         if(!(chessboard[king.X()][king.Y()] instanceof King)){
             // if another piece is taking spot of king, return true, since we know game is over
             return true;
@@ -734,7 +729,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         //can king move? can king move to a spot not in check?
         List<Coordinates> kingMoves = kingPiece.allPossibleMoves(chessboard, king);
         chessboard[checker.X()][checker.Y()] = null;    // remove checker, then
-        print_board();
         boolean[][] threat = (Objects.equals(kingPiece.get_player(), "W")) ? getThreatMap("B") : getThreatMap("W");
         if(!kingMoves.isEmpty()){
             for(Coordinates c : kingMoves){
@@ -746,7 +740,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
 
         chessboard[checker.X()][checker.Y()] = checkPiece;
-        print_board();
 
         // check for possible obstructions to counter check
         List<Coordinates> between = Coordinates.places_between(king, checker);   // find possible obstruction spots
@@ -768,7 +761,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         return true;
     }
 
-    public void update_leaderboard(String winner, String loser){
+    private void update_leaderboard(String winner, String loser){
         // Send the winner and losers to the leaderboard
         Intent intent = new Intent(this, Leaderboard.class);
 
@@ -777,7 +770,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         startActivity(intent);
     }
-    public boolean[][] getThreatMap(String p){
+    private boolean[][] getThreatMap(String p){
         boolean[][] map = new boolean[8][8];
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -792,7 +785,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         return map;
     }
 
-    public void print_board(){
+    private void print_board(){
         for(int i =0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(chessboard[i][j] == null){
@@ -806,7 +799,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public void updateBoardColor(){
+    private void updateBoardColor(){
         for(int i = 0; i < 8; i++){
             for(int j =0; j < 8; j++){
                 if((i+j)%2==0){ // case for white

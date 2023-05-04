@@ -80,7 +80,6 @@ public class Leaderboard extends AppCompatActivity {
                 // Add one to an existing player's win total
                 int wins = (int) entry.getValue();
                 int newValue = (++wins);
-                System.out.println(newValue);
                 editor.putInt(player, newValue);
                 editor.apply();
                 return;

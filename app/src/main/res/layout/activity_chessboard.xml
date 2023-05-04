@@ -1772,7 +1772,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"
-        android:text="HOME"
+        android:text="@string/home"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.091"
@@ -1800,13 +1800,14 @@
         android:id="@+id/sound_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sound"
+        android:text="@string/sound"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.32"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player1_banner"
-        app:layout_constraintVertical_bias="0.118" />
+        app:layout_constraintVertical_bias="0.118"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <Switch
         android:id="@+id/mode_btn"
