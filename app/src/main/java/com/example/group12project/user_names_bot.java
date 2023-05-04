@@ -11,13 +11,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class user_names_bot extends AppCompatActivity {
 
-    boolean random;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_bot_names);
 
+        Button start_game = findViewById(R.id.start_game);
+        start_game.setOnClickListener(view -> goToBoard());
+        Button back_btn = findViewById(R.id.back_button_bot);
+        back_btn.setOnClickListener(view -> goBack());
+    }
     public void goToBoard() {
         Intent intent_1 = new Intent(this, Chessboard.class);
 
-        EditText t1 = (EditText) findViewById(R.id.player_one_name);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch s1 = (Switch) findViewById(R.id.aggr_switch);
+        EditText t1 = findViewById(R.id.player_one_name);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch s1 = findViewById(R.id.aggr_switch);
         Boolean random = !(s1.isChecked());
         intent_1.putExtra("BlackName", String.valueOf(t1.getText()));
         intent_1.putExtra("Bot", true);
@@ -25,12 +33,9 @@ public class user_names_bot extends AppCompatActivity {
         startActivity(intent_1);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bot_names);
-
-        Button start_game = (Button) findViewById(R.id.start_game);
-        start_game.setOnClickListener(view -> goToBoard());
+    public void goBack(){
+        Intent intent_2 = new Intent(this, MainActivity.class);
+        startActivity(intent_2);
     }
+
 }

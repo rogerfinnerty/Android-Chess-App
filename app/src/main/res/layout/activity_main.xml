@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="668dp"
+        android:layout_height="match_parent"
         android:gravity="bottom|center"
         android:orientation="vertical"
         android:padding="30dp">
@@ -18,7 +18,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SimpleChess"
+            android:text="@string/simplechess"
             android:textAlignment="center"
             android:textSize="38sp" />
 
@@ -32,7 +32,8 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="218dp"
-            app:srcCompat="@drawable/mainpic" />
+            app:srcCompat="@drawable/mainpic"
+            android:contentDescription="@string/chessicon" />
 
         <View
             android:id="@+id/divider"
@@ -42,21 +43,28 @@
 
         <Button
             android:id="@+id/new_game"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="78dp"
             android:text="@string/new_game" />
 
         <Button
             android:id="@+id/Bot"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="78dp"
             android:text="@string/new_game_vs_bot" />
 
         <Button
             android:id="@+id/leaderboard"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="78dp"
             android:text="@string/leaderboard" />
 
+        <Button
+            android:id="@+id/rules"
+            android:layout_width="320dp"
+            android:layout_height="78dp"
+            android:text="@string/rules" />
+
     </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

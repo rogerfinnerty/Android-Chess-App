@@ -1,6 +1,5 @@
 package com.example.group12project.ChessComponents;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ChessBot {

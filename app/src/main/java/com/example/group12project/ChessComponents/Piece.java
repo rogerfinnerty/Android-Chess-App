@@ -108,9 +108,5 @@ public abstract class Piece {
         board[currPos.X()][currPos.Y()] = this;
         return checker;
     }
-
-    public void print_piece(){
-        Log.d("Piece:", get_type() + get_player());
-    }
 }
 

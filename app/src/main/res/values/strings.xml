@@ -35,4 +35,21 @@
     <string name="leaderboard">Leaderboard</string>
     <string name="title_activity_leaderboard">Leaderboard</string>
     <string name="new_game_vs_bot">New Game vs Bot</string>
+    <string name="simplechess">SimpleChess</string>
+    <string name="chessicon">ChessIcon</string>
+    <string name="rules">Rules</string>
+    <string name="aggressive_bot">Aggressive Bot</string>
+    <string name="enter_player_2_name">Enter player 2 name</string>
+    <string name="enter_player_1_name">Enter player 1 name</string>
+    <string name="start_game">Start Game</string>
+    <string name="back">BACK</string>
+    <string name="challenger">Challenger</string>
+    <string name="enter_challenger_name">Enter challenger name</string>
+    <string name="piece_labels">Piece Labels</string>
+    <string name="first_paragraph">Chess is a traditional boardgame that is thousands of years old. It is played on an 8x8 grid of alternating black and white tiles, which act as the board, and 32 pieces, 16 black and 16 white. Player 1 has control over the white pieces, and Player 2 has control over the black pieces.</string>
+    <string name="second_paragraph">To the right are the pieces, ranked from top to bottom by their worth. For each color, there are 8 pawns, 2 knights, 2 bishops, 2 rooks, and one queen and king. Each piece is allowed to move according to specific rules, and they can take pieces of the other color, which are then discarded from the board. The goal is to take your opponent\'s King, or put the King in a position where there is no way for the opponent to avoid losing the King.</string>
+    <string name="third_paragraph">We invite you to try playing to learn more about each piece\'s moveset, as this game will not allow illegal movement. The game continues passing from one player\'s move to another until the King is put in that position of no movement (called checkmate). Each time a piece places itself in a way such that in the next turn, that piece can take the opposing player\'s King, the King is said to be \"in check\". You will see the King highlighted orange, and the player must move in such a way to stop that attack. At checkmate, the King will turn highlighted red, and the game will be over.</string>
+    <string name="home">HOME</string>
+    <string name="sound">Sound</string>
+    <string name="rules_of_chess">Rules of Chess</string>
 </resources>
