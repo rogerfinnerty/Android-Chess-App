@@ -4,39 +4,73 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_light"
     tools:context=".Leaderboard">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="top"
+        android:gravity="center"
         android:orientation="vertical"
         android:padding="40dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leaderboard"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:background="@android:color/holo_blue_light" />
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="391dp"
+            android:background="#76BCD6">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TableLayout
+                    android:id="@+id/leaderboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:stretchColumns="0,1">
+
+                    <TableRow android:textAlignment="center">
+
+                        <TextView
+                            android:text="Name"
+                            android:textAlignment="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:text="Number of Wins"
+                            android:textAlignment="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+        </ScrollView>
 
         <Button
             android:id="@+id/home_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Home" />
-
-        <TableLayout
-            android:id="@+id/leaderboard"
-            android:stretchColumns="0,1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TableRow>
-
-                <TextView
-                    android:text="Name"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:text="Number of Wins"
-                    android:textStyle="bold" />
-            </TableRow>
-
-        </TableLayout>
 
     </LinearLayout>
 

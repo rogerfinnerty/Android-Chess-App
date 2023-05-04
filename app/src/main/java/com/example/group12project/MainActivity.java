@@ -2,32 +2,13 @@
 
 package com.example.group12project;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
+import android.os.Handler;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.group12project.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
-
-// this stuff is for the makeToast
-import android.os.Handler;
-import android.widget.Toast;
-import android.content.Intent;
-
-import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,10 +17,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);    // Display main menu
 
-        Button new_game = (Button) findViewById(R.id.new_game);
-        Button leaderboard = (Button) findViewById(R.id.leaderboard);
-        Button new_vs_bot = (Button) findViewById(R.id.Bot);
-        Button rules_btn = (Button) findViewById(R.id.rules);
+        Button new_game = findViewById(R.id.new_game);
+        Button leaderboard = findViewById(R.id.leaderboard);
+        Button new_vs_bot = findViewById(R.id.Bot);
+        Button rules_btn = findViewById(R.id.rules);
 
         new_game.setOnClickListener(view -> goToUserNames());
         new_vs_bot.setOnClickListener(view -> newBot());

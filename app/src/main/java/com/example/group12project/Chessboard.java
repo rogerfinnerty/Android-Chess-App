@@ -3,14 +3,10 @@ package com.example.group12project;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.text.Layout;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
@@ -33,8 +29,6 @@ import com.example.group12project.ChessComponents.Queen;
 import com.example.group12project.ChessComponents.RandomChessBot;
 import com.example.group12project.ChessComponents.Rook;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,8 +39,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
     boolean gameover = false;
     Coordinates whiteKingCoord, blackKingCoord;
-    boolean[][] whiteThreatMap;
-    boolean[][] blackThreatMap;
     String WhiteName, BlackName;
     boolean WhiteMove = true;   //starting boolean for move
     boolean CPU = false, random = true;     // default bot is RandomChessBot
@@ -55,12 +47,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
     ChessBot bot;
     MediaPlayer mp;
     boolean sound, mode, piece_theme, board_theme;
-
-
-    @ColorInt int white1 = Color.WHITE;
-    @ColorInt int black1 = (0xB5B5B5);
-    @ColorInt int white2 = 0x887F72;
-    @ColorInt int black2 = 0x4B3A39;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +63,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         start_board(); // create blank board, add pieces in their starting positions
         set_tiles();   // fill out background_tiles to use for highlighting
-        blackThreatMap = getThreatMap("B");
-        whiteThreatMap = getThreatMap("W");
-
 
         // need to set WhiteName and BlackName before game starts
         Bundle extras = getIntent().getExtras();
@@ -129,9 +112,7 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch sound_btn = findViewById(R.id.sound_btn);
         sound_btn.setChecked(true); // initially on
-        sound_btn.setOnClickListener(v -> {
-            sound = sound_btn.isChecked();
-        });
+        sound_btn.setOnClickListener(v -> sound = sound_btn.isChecked());
 
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch piece_btn = findViewById(R.id.piece_btn);
         piece_btn.setChecked(true);
@@ -177,13 +158,13 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
         builder.setTitle("WINNER !");
         builder.setCancelable(false);
 
-        builder.setPositiveButton("Home", (DialogInterface.OnClickListener) (dialog, which) -> {
+        builder.setPositiveButton("Home", (dialog, which) -> {
             // When the user click yes button then app will close
             Intent switchActivityIntent = new Intent(this, MainActivity.class);
             startActivity(switchActivityIntent);
         });
         if(!CPU){
-            builder.setNeutralButton("Update Leaderboard", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNeutralButton("Update Leaderboard", (dialog, which) -> {
                 if(!white_win){
                     update_leaderboard(WhiteName, BlackName);
                 }
@@ -193,20 +174,17 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
             });
         }
         // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
-        builder.setNegativeButton("Play Again", (DialogInterface.OnClickListener) (dialog, which) -> {
+        builder.setNegativeButton("Play Again", (dialog, which) -> {
             // If user click no then dialog box is canceled.
             this.recreate();
         });
 
         Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                // Create the Alert dialog
-                AlertDialog alertDialog = builder.create();
-                // Show the Alert Dialog box
-                alertDialog.show();
-            }
+        Runnable runnable = () -> {
+            // Create the Alert dialog
+            AlertDialog alertDialog = builder.create();
+            // Show the Alert Dialog box
+            alertDialog.show();
         };
         handler.postDelayed(runnable, 2000);
     }
@@ -482,8 +460,9 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
                 }
             }
         }
-        TextView t = (TextView) findViewById(v.getId());
+        TextView t = findViewById(v.getId());
         Coordinates c = Coordinates.get_pos(t.getId());
+        c.display_coord();
         if(c == null){
             return;
         }
@@ -754,7 +733,6 @@ public class Chessboard extends AppCompatActivity implements View.OnClickListene
 
         //can king move? can king move to a spot not in check?
         List<Coordinates> kingMoves = kingPiece.allPossibleMoves(chessboard, king);
-        List<Coordinates> kingMoves_pos = new ArrayList<>();
         chessboard[checker.X()][checker.Y()] = null;    // remove checker, then
         print_board();
         boolean[][] threat = (Objects.equals(kingPiece.get_player(), "W")) ? getThreatMap("B") : getThreatMap("W");
