@@ -51,6 +51,30 @@ public class King extends Piece {
             }
         }
 
+        // check if pawn will make the King in check with diagonal take
+        int pawn_dir = (Objects.equals(type, "W")) ? -1 : 1;
+        if(end.X()+pawn_dir < 8 && end.Y()+1 < 8){
+            Piece potPawn1 = board[end.X()+pawn_dir][end.Y()+1];
+            if(potPawn1 instanceof Pawn && !Objects.equals(potPawn1.get_player(), this.get_player())){
+                return false;
+            }
+        }
+        if(end.X()+pawn_dir < 8 && end.Y()-1 < 8){
+            Piece potPawn2 = board[end.X()+pawn_dir][end.Y()-1];
+            if(potPawn2 instanceof Pawn && !Objects.equals(potPawn2.get_player(), this.get_player())){
+                return false;
+            }
+        }
+        if(end.X()+pawn_dir < 8){
+            Piece potPawn3 = board[end.X()+pawn_dir][end.Y()];
+            Coordinates checker = this.checkByWho(board, end);
+            if(checker != null && board[checker.X()][checker.Y()] instanceof Pawn && checker.equals(new Coordinates(end.X()+pawn_dir, end.Y()))){
+                // if the checker is pawn in front of king's end spot, we know the coast is clear
+                return true;
+            }
+        }
+
+        // find if king is in check by pawn in front (not correct since pawn cannot move forward to take piece)
 
         return !this.kingInCheck(board, end);
     }
@@ -89,6 +113,29 @@ public class King extends Piece {
             }
         }
 
+        // check if pawn will make the King in check with diagonal take
+        int pawn_dir = (Objects.equals(type, "W")) ? -1 : 1;
+        if(end.X()+pawn_dir < 8 && end.Y()+1 < 8){
+            Piece potPawn1 = board[end.X()+pawn_dir][end.Y()+1];
+            if(potPawn1 instanceof Pawn && !Objects.equals(potPawn1.get_player(), this.get_player())){
+                return false;
+            }
+        }
+        if(end.X()+pawn_dir < 8 && end.Y()-1 < 8){
+            Piece potPawn2 = board[end.X()+pawn_dir][end.Y()-1];
+            if(potPawn2 instanceof Pawn && !Objects.equals(potPawn2.get_player(), this.get_player())){
+                return false;
+            }
+        }
+        if(end.X()+pawn_dir < 8){
+            Piece potPawn3 = board[end.X()+pawn_dir][end.Y()];
+            Coordinates checker = this.checkByWho(board, end);
+            if(checker != null && board[checker.X()][checker.Y()] instanceof Pawn && checker.equals(new Coordinates(end.X()+pawn_dir, end.Y()))){
+                // if the checker is pawn in front of king's end spot, we know the coast is clear
+                return true;
+            }
+        }
+
         //pretend like king is not there, check if in checkmate?
 
         return !this.kingInCheck(board, end);
@@ -123,13 +170,14 @@ public class King extends Piece {
 
     public boolean kingInCheck(Piece[][] chessboard, Coordinates king_square){
         // checks all spots, all pieces to see if they can attack the King
+        // first remove king
+        chessboard[king_square.X()][king_square.X()] = null;
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
                     if(chessboard[i][j].can_move(chessboard, new Coordinates(i, j), king_square)){
                         return true;
                     }
-
                 }
             }
         }
@@ -140,7 +188,7 @@ public class King extends Piece {
     public Coordinates checkByWho(Piece[][] chessboard, Coordinates king_square){
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), chessboard[king_square.X()][king_square.Y()].get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
+                if(chessboard[i][j] != null && (!Objects.equals(chessboard[i][j].get_player(), this.get_player())) && !Objects.equals(chessboard[i][j].get_type(), "K")) { // check if piece is null, then check if its color is same as king
                     //get list of possible moves of non-same color piece at i,j
                     //chessboard[i][j].print_piece();
                     if(chessboard[i][j].can_move(chessboard, new Coordinates(i, j), king_square)){
